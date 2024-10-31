@@ -1,2 +1,3 @@
-# Phunny
-This repository contains code and data for Phunny, the first benchmark to assess the capabilities of Large Language Models on solve and understand Phoenic Head Puns. 
+# Phunny: A Benchmark for Phoenic Head Puns
+
+This repository contains code and data for **Phunny**, the first benchmark designed to evaluate the capabilities of Large Language Models (LLMs) in understanding and solving phonetic head puns. 

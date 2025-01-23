@@ -1,13 +1,3 @@
-# import google.generativeai as genai
-
-# genai.configure(api_key="AIzaSyCgyl1NrBOGn_zNfBxWbpoEHCxCc5zGjTg")
-# model = genai.GenerativeModel("gemini-1.5-flash")
-# response = model.generate_content("Explain how AI works")
-# print(response.text)
-
-# from google import genai
-# from google.genai import types
-
 from tqdm import tqdm 
 import json
 import time

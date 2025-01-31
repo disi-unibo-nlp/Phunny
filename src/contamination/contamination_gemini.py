@@ -28,8 +28,8 @@ from dataclasses import dataclass, field
 class ScriptArguments:
     model_name: Optional[str] = field(default="gemini-1.5-flash", metadata={"help": "model's HF directory or local path"})
     max_samples: Optional[int] = field(default=-1, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
-    input_data: Optional[str] = field(default="data/parsing/2025-01-24_14-45-35/data_parsed.jsonl", metadata={"help": "Input data file path."})
-    start_idx: Optional[int] = field(default=0, metadata={"help": "Index of first prompt to process."})
+    start_idx: Optional[int] = field(default=1180, metadata={"help": "Index of first data sample to process."})
+    input_data: Optional[str] = field(default="data/parsing/2025-01-26_22-54-21/data_parsed.jsonl", metadata={"help": "Input data file path."})
     top_p: Optional[float] = field(default=1.0, metadata={"help": "Top p sampling."})
     top_k: Optional[float] = field(default=40, metadata={"help": "Top p sampling."})
     temperature: Optional[float] = field(default=0, metadata={"help": "Sampling temperature parameter"})
@@ -82,27 +82,36 @@ if __name__ == "__main__":
     with open(args.input_data) as f:
         data = [json.loads(line) for line in f.readlines()]
     
+    if args.start_idx > 0:
+        data = data[args.start_idx:]
+
     if args.max_samples > 0:
         data = data[:args.max_samples]
+    
 
-    PROMPT_TEMPLATE = """Your task is to determine whether the provided English pun has been contaminated by or exists within the content of a given web page.
+    PROMPT_TEMPLATE = """This is an English pun: What do you call a {SUBJECT} that {PREDICATE}? {ANSWER}. 
+In this case we have the SUBJECT "{SUBJECT}", the PREDICATE "{PREDICATE}", and the ANSWER "{ANSWER}".
+
+Your task is to determine whether the provided English pun has been contaminated by or exists within the content of a given web page.
 
 Contamination is confirmed only if both of the following conditions are met:
 
-- The web page contains sufficient information to reconstruct the question part of the pun.
-- The web page also provides the answer to the pun.
+- The web page contains sufficient information to reconstruct the question part of the pun, including EXPLICIT information on both the SUBJECT and the PREDICATE.
+- The web page also provides explicitly the ANSWER to the pun.
 
-If both conditions are satisfied, explain why, otherwise return a only a string "No evidence found."
-
-English Pun: {pun}
+If all the conditions are satisfied, explain why, otherwise return only the string "No evidence found."
 
 Web Page Content: {content}
 """
 
     for k, item in enumerate(data): 
        
+        subject = item['pun'].split('that')[0].lower().replace('what do you call a', '').strip()
+        predicate = item['pun'].split('that')[1].split("?")[0].strip()
+        answer = item['pun'].split("?")[1].replace(".","").strip()
         
-        prompt = PROMPT_TEMPLATE.replace("{pun}", item['pun']).replace("{content}", item['content'])
+        #prompt = PROMPT_TEMPLATE.replace("{pun}", item['pun']).replace("{content}", item['content'])
+        prompt = PROMPT_TEMPLATE.replace("{SUBJECT}", subject).replace("{PREDICATE}", predicate).replace("{ANSWER}", answer).replace("{content}", item['content'])
 
         if k == 0:
             logger.info(f"Selected prompt:\n{prompt}")
@@ -121,13 +130,17 @@ Web Page Content: {content}
         else: 
             response = model.generate_content(prompt)
 
-        completion = response.text.strip()
+        if response.candidates:
+            completion = response.text.strip() 
+        else:
+            continue
        
 
         output_file = f'out/contamination/{output_dir}/{args.model_name}.jsonl'
 
         with open(output_file, 'a') as f:
-            out_dict = {"pun": item['pun'], "href": item['href'], "contamination": completion}
+            is_safe = "no evidence found" in completion.lower()
+            out_dict = {"safe": is_safe, "pun": item['pun'], "href": item['href'], "contamination": completion}
             json.dump(out_dict, f, ensure_ascii=False)
             f.write("\n")
 

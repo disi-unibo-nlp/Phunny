@@ -28,38 +28,36 @@ class ScriptArguments:
     max_samples: Optional[int] = field(default=-1, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
     start_idx: Optional[int] = field(default=0, metadata={"help": "Index of first prompt to process."})
     top_p: Optional[float] = field(default=1.0, metadata={"help": "Top p sampling."})
-    top_k: Optional[float] = field(default=200, metadata={"help": "Top p sampling."})
+    top_k: Optional[float] = field(default=2000, metadata={"help": "Top p sampling."})
     n_sampling: Optional[int] = field(default=12, metadata={"help": "Number of prompts to sample for each question"})
-    temperature: Optional[float] = field(default=1.9, metadata={"help": "Sampling temperature parameter"})
-    n_shots: Optional[str] = field(default="10", metadata={"help": "Number of shots to use for each prompts."})
+    temperature: Optional[float] = field(default=1.5, metadata={"help": "Sampling temperature parameter"})
+    n_shots: Optional[str] = field(default="5", metadata={"help": "Number of shots to use for each prompts."})
     random_shots: Optional[bool] = field(default=True, metadata={"help": "Whether to use random or fixed example shots."})
-
 
 if __name__ == "__main__":
     load_dotenv()
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-    
-    now = datetime.now()
-    # Format the date and time as a string
-    output_dir = now.strftime("%Y-%m-%d_%H-%M-%S")
-    os.makedirs(f'out/batch_api/{output_dir}', exist_ok=True)
-    # set up logging to file
-    logging.basicConfig(level=logging.DEBUG,
-                        datefmt="%m/%d/%Y %H:%M:%S",
-                        format="[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s",
-                        filename=f"out/batch_api/{output_dir}/batch.log",
-                        filemode='w')
-
-    logger = logging.getLogger(__name__)
-    logger.addHandler(logging.StreamHandler())
-
     # parse input args
     parser = HfArgumentParser(ScriptArguments)
     args = parser.parse_args_into_dataclasses()[0]
 
-    logger.info(args)
     MODEL_NAME =  args.model_name 
 
+    now = datetime.now()
+    # Format the date and time as a string
+    output_dir = now.strftime("%Y-%m-%d_%H-%M-%S")
+    os.makedirs(f'out/generation/{MODEL_NAME}/{output_dir}', exist_ok=True)
+    # set up logging to file
+    logging.basicConfig(level=logging.DEBUG,
+                        datefmt="%m/%d/%Y %H:%M:%S",
+                        format="[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s",
+                        filename=f"out/generation/{MODEL_NAME}/{output_dir}/batch.log",
+                        filemode='w')
+
+    logger = logging.getLogger(__name__)
+    logger.addHandler(logging.StreamHandler())
+    logger.info(args)
+    
     if MODEL_NAME == "gemini-2.0-flash-exp":
         from google import genai
         from google.genai import types
@@ -79,7 +77,6 @@ if __name__ == "__main__":
         model_info = genai.get_model(f"models/{MODEL_NAME}")
         logger.info(model_info)
 
-    # Generation Config
 
     SHOTS = [
     "What do you call a gene that works everywhere? Generalizable.",
@@ -103,13 +100,13 @@ if __name__ == "__main__":
         for k in tqdm(range(args.n_sampling)):
             if n_shot == 0:
                 prompt = """Create an English pun using the format "What do you call a X that Y? XZ".
-    
-    Follow these guidelines:
-    - Select a prefix word X (the subject of the question).
-    - Attach a suffix Z to X, forming a new legitimate word XZ (the answer of the question).
-    - Use the actual definition of the word XZ to effectively replace Y, providing the punchline.
-    
-    Return as output ONLY the pun, prefixed by "pun:"."""
+
+Follow these guidelines:
+- Select a prefix word X (the subject of the question).
+- Attach a suffix Z to X, forming a new legitimate word XZ (the answer of the question).
+- Use the actual definition of the word XZ to effectively replace Y, providing the punchline.
+
+Return as output ONLY the pun, prefixed by "pun:"."""
 
             else:
 
@@ -150,9 +147,14 @@ Return as output ONLY the pun, prefixed by "pun:"."""
 
             else: 
                 response = model.generate_content(prompt)
+        
+            prefix_question = response.text.split("that")[0].lower()
+            prefix_question = prefix_question.replace("what do you call a", "").replace("pun:", "").strip()
+            answer_question = response.text.split("?")[1].strip()
+            is_valid = answer_question.lower().startswith(prefix_question)
 
-            with open(f'out/batch_api/{output_dir}/puns-{MODEL_NAME}.jsonl', 'a') as f:
-                json.dump({"pun": response.text.replace("pun:", "").strip(), "id": id}, f, ensure_ascii=False)
+            with open(f'out/generation/{MODEL_NAME}/{output_dir}/puns-{MODEL_NAME}.jsonl', 'a') as f:
+                json.dump({"pun": response.text.replace("pun:", "").strip(), "prefix": prefix_question, "answer": answer_question, "valid": "" if is_valid else is_valid, "id": id}, f, ensure_ascii=False)
                 f.write("\n")
 
             if MODEL_NAME == "gemini-2.0-flash-exp":

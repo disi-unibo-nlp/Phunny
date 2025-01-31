@@ -39,9 +39,9 @@ class ScriptArguments:
     max_samples: Optional[int] = field(default=-1, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
     start_idx: Optional[int] = field(default=0, metadata={"help": "Index of first prompt to process."})
     top_p: Optional[float] = field(default=1.0, metadata={"help": "Top p sampling."})
-    n_sampling: Optional[int] = field(default=50, metadata={"help": "Number of prompts to sample for each question"})
-    temperature: Optional[float] = field(default=1.9, metadata={"help": "Sampling temperature parameter"})
-    n_shots: Optional[str] = field(default="0,1,5,10", metadata={"help": "Number of shots to use for each prompts."})
+    n_sampling: Optional[int] = field(default=10, metadata={"help": "Number of prompts to sample for each question"})
+    temperature: Optional[float] = field(default=1.0, metadata={"help": "Sampling temperature parameter"})
+    n_shots: Optional[str] = field(default="5", metadata={"help": "Number of shots to use for each prompts."})
     random_shots: Optional[bool] = field(default=True, metadata={"help": "Whether to use random or fixed example shots."})
 
 
@@ -75,25 +75,26 @@ if __name__ == "__main__":
     DEEPSEEK_KEY = os.getenv("DEEPSEEK_API_KEY")
     HF_TOKEN = os.getenv("HF_TOKEN")
     login(token=HF_TOKEN)
-    
-    now = datetime.now()
-    # Format the date and time as a string
-    output_dir = now.strftime("%Y-%m-%d_%H-%M-%S")
-    os.makedirs(f'out/batch_api/{output_dir}', exist_ok=True)
-    # set up logging to file
-    logging.basicConfig(level=logging.DEBUG,
-                        datefmt="%m/%d/%Y %H:%M:%S",
-                        format="[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s",
-                        filename=f"out/batch_api/{output_dir}/batch.log",
-                        filemode='w')
-
-    logger = logging.getLogger(__name__)
-    logger.addHandler(logging.StreamHandler())
 
     # parse input args
     parser = HfArgumentParser(ScriptArguments)
     args = parser.parse_args_into_dataclasses()[0]
 
+    now = datetime.now()
+    # Format the date and time as a string
+    output_dir = now.strftime("%Y-%m-%d_%H-%M-%S")
+    os.makedirs(f'out/generation/{args.model_name}/{output_dir}', exist_ok=True)
+    # set up logging to file
+    logging.basicConfig(level=logging.DEBUG,
+                        datefmt="%m/%d/%Y %H:%M:%S",
+                        format="[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s",
+                        filename=f"out/generation/{args.model_name}/{output_dir}/batch.log",
+                        filemode='w')
+
+    logger = logging.getLogger(__name__)
+    logger.addHandler(logging.StreamHandler())
+
+    
     if "deepseek" in args.model_name.lower():
         client = OpenAI(
             api_key=DEEPSEEK_KEY,
@@ -172,8 +173,13 @@ Return as output ONLY your new pun, prefixed by "pun:"."""
             completion = response.choices[0].message.content.strip()
             model = response.model
 
-            with open(f'out/batch_api/{output_dir}/puns-{model}.jsonl', 'a') as f:
-                json.dump({"pun": completion.replace("pun:", "").strip(), "id": id}, f, ensure_ascii=False)
+            prefix_question = completion.split("that")[0].lower()
+            prefix_question = prefix_question.replace("what do you call a", "").replace("pun:", "").strip()
+            answer_question = completion.split("?")[1].strip()
+            is_valid = answer_question.lower().startswith(prefix_question)
+
+            with open(f'out/generation/{args.model_name}/{output_dir}/puns-{model}.jsonl', 'a') as f:
+                json.dump({"pun": completion.replace("pun:", "").strip(), "prefix": prefix_question, "answer": answer_question, "valid": "" if is_valid else is_valid, "id": id}, f, ensure_ascii=False)
                 f.write("\n")
 
         logger.info(f"Completed generation for {n_shot} shot(s).")

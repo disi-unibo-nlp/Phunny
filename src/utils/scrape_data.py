@@ -1,6 +1,7 @@
 # pip install -U duckduckgo_search docling
 import os
 import json
+import time
 from tqdm import tqdm
 from duckduckgo_search import DDGS
 from docling.document_converter import DocumentConverter
@@ -11,8 +12,8 @@ from transformers import HfArgumentParser
 
 @dataclass
 class ScriptArguments:
-    max_samples: Optional[int] = field(default=20, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
-    input_data: Optional[str] = field(default="data/candidate_dataset_380.jsonl", metadata={"help": "Input data file path."})
+    max_samples: Optional[int] = field(default=-1, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
+    input_data: Optional[str] = field(default="data/candidate_dataset_466.jsonl", metadata={"help": "Input data file path."})
 
 if __name__ == "__main__":
 
@@ -37,5 +38,7 @@ if __name__ == "__main__":
         with open(out_dir + "/data_scraped.jsonl", 'a') as f:
             json.dump({"id": id_pun, "pun": item['pun'], "content": results}, f, ensure_ascii=False)
             f.write("\n")
-
+        print('waiting...')
+        time.sleep(5)
+        print('restarting...')
 

@@ -1,3 +1,4 @@
+# pip install google-genai
 from tqdm import tqdm 
 import json
 import time

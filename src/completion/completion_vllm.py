@@ -67,6 +67,21 @@ class ScriptArguments:
 
 #     return False
 
+def load_data(input_path):
+    try:
+        # Try to load from Hugging Face Hub
+        dataset = load_dataset(input_path)
+        return dataset
+    except Exception:
+        # If loading from HF fails, check if it's a local path
+        if os.path.exists(input_path):
+            dataset = load_dataset("json", data_files=args.input_data)['train']
+            print(dataset)
+            return dataset
+        else:
+            raise FileNotFoundError(f"Dataset not found in Hugging Face Hub or locally: {input_path}")
+
+
 def is_derivative(answer, gold):
     """
     Check if `answer` is a derivative of `gold` using WordNet and manual heuristics.
@@ -166,11 +181,13 @@ if __name__ == "__main__":
         tensor_parallel_size=args.n_gpus,
     )
 
-    with open(args.input_data) as f:
-        data = [json.loads(line) for line in f.readlines()]
+    data = load_data(args.input_data)
+    
+    if args.start_idx > 0:
+        data = data.select(range(args.start_idx, len(data)))
     
     if args.max_samples > 0:
-        data = data[:args.max_samples]
+        data = data.select(range(args.max_samples))
     
     prompts = []
     for i, item in enumerate(data):

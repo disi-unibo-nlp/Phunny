@@ -13,6 +13,7 @@ from huggingface_hub import login
 from typing import Optional
 from dataclasses import dataclass, field
 from datetime import datetime
+from datasets import load_dataset
 
 # gpt-4o-mini-2024-07-18 # gpt-4o-2024-08-06 # o3-mini-2025-01-31
 
@@ -26,6 +27,21 @@ class ScriptArguments:
     n_sampling: Optional[int] = field(default=1, metadata={"help": "Number of prompts to sample for each question"})
     temperature: Optional[float] = field(default=0.0, metadata={"help": "Sampling temperature parameter"})
     n_shots: Optional[str] = field(default="5", metadata={"help": "Number of shots to use for each prompts."})
+
+def load_data(input_path):
+    try:
+        # Try to load from Hugging Face Hub
+        dataset = load_dataset(input_path)
+        return dataset
+    except Exception:
+        # If loading from HF fails, check if it's a local path
+        if os.path.exists(input_path):
+            dataset = load_dataset("json", data_files=args.input_data)['train']
+            print(dataset)
+            return dataset
+        else:
+            raise FileNotFoundError(f"Dataset not found in Hugging Face Hub or locally: {input_path}")
+
 
 if __name__ == "__main__":
     load_dotenv()
@@ -57,11 +73,13 @@ if __name__ == "__main__":
     args = parser.parse_args_into_dataclasses()[0]
     MODEL_NAME =  args.model_name 
 
-    with open(args.input_data) as f:
-        data = [json.loads(line) for line in f.readlines()]
+    data = load_data(args.input_data)
+    
+    if args.start_idx > 0:
+        data = data.select(range(args.start_idx, len(data)))
     
     if args.max_samples > 0:
-        data = data[:args.max_samples]
+        data = data.select(range(args.max_samples))
     
     SHOTS = [
         "What do you call a gene that works everywhere?\nAnswer: Generalizable.",

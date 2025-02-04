@@ -18,13 +18,13 @@ from datetime import datetime
 
 @dataclass
 class ScriptArguments:
-    model_name: Optional[str] = field(default="o3-mini-2025-01-31", metadata={"help": "model's HF directory or local path"})
+    model_name: Optional[str] = field(default="gpt-4o-2024-08-06", metadata={"help": "model's HF directory or local path"})
     input_data: Optional[str] = field(default="data/data_phunny.jsonl", metadata={"help": "Input data file path."})
     max_samples: Optional[int] = field(default=-1, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
     start_idx: Optional[int] = field(default=0, metadata={"help": "Index of first prompt to process."})
     top_p: Optional[float] = field(default=1.0, metadata={"help": "Top p sampling."})
     n_sampling: Optional[int] = field(default=1, metadata={"help": "Number of prompts to sample for each question"})
-    temperature: Optional[float] = field(default=1.0, metadata={"help": "Sampling temperature parameter"})
+    temperature: Optional[float] = field(default=0.0, metadata={"help": "Sampling temperature parameter"})
     n_shots: Optional[str] = field(default="5", metadata={"help": "Number of shots to use for each prompts."})
 
 if __name__ == "__main__":
@@ -89,7 +89,7 @@ if __name__ == "__main__":
             if "o3" in args.model_name.lower():
                 batch_request = {"custom_id": "", "method": "POST", "url": "/v1/chat/completions", "body": {"model": args.model_name, "messages": [{"role": "system", "content": "You are a helpful assistant."},], "reasoning_effort": "high"}}
             else:
-                batch_request = {"custom_id": "", "method": "POST", "url": "/v1/chat/completions", "body": {"model": args.model_name, "messages": [{"role": "system", "content": "You are a helpful assistant."},], "temperature": args.temperature, "max_tokens": 512}}
+                batch_request = {"custom_id": "", "method": "POST", "url": "/v1/chat/completions", "body": {"model": args.model_name, "messages": [{"role": "system", "content": "You are a helpful assistant."},], "temperature": args.temperature, "max_tokens": 4096}}
 
             
             shots_selected = "\n\n".join(SHOTS[:n_shot])

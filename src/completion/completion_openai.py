@@ -5,7 +5,9 @@ from datetime import datetime
 import nltk
 nltk.download('wordnet')
 from nltk.corpus import wordnet
+from nltk.stem import WordNetLemmatizer
 
+from datasets import load_dataset
 from openai import OpenAI
 import torch
 import json
@@ -36,30 +38,93 @@ class ScriptArguments:
     n_shots: Optional[int] = field(default=5, metadata={"help": "Number of shots to use for inference.", "choices": [3, 5, 10]})
 
 
+# def is_derivative(answer, gold):
+#     """
+#     Check if `answer` is a derivative of `gold` using WordNet.
+    
+#     Args:
+#         answer (str): The answer word to check.
+#         gold (str): The gold standard word.
+    
+#     Returns:
+#         bool: True if `answer` is a derivative of `gold`, False otherwise.
+#     """
+#     # Get synsets for both words
+#     answer_synsets = wordnet.synsets(answer)
+#     gold_synsets = wordnet.synsets(gold)
+
+#     # Check if either word is a derivative of the other
+#     for gold_syn in gold_synsets:
+#         for lemma in gold_syn.lemmas():
+#             # Check for derivationally related forms
+#             related_forms = lemma.derivationally_related_forms()
+#             if any(rel_form.name() == answer for rel_form in related_forms):
+#                 return True
+
+#     return False
+
+def load_data(input_path):
+    try:
+        # Try to load from Hugging Face Hub
+        dataset = load_dataset(input_path)
+        return dataset
+    except Exception:
+        # If loading from HF fails, check if it's a local path
+        if os.path.exists(input_path):
+            dataset = load_dataset("json", data_files=args.input_data)['train']
+            print(dataset)
+            return dataset
+        else:
+            raise FileNotFoundError(f"Dataset not found in Hugging Face Hub or locally: {input_path}")
+
+
 def is_derivative(answer, gold):
     """
-    Check if `answer` is a derivative of `gold` using WordNet.
-    
+    Check if `answer` is a derivative of `gold` using WordNet and manual heuristics.
+
     Args:
         answer (str): The answer word to check.
         gold (str): The gold standard word.
-    
+
     Returns:
         bool: True if `answer` is a derivative of `gold`, False otherwise.
     """
-    # Get synsets for both words
-    answer_synsets = wordnet.synsets(answer)
-    gold_synsets = wordnet.synsets(gold)
+    lemmatizer = WordNetLemmatizer()
+    
+    # Get base forms
+    answer_lemma = lemmatizer.lemmatize(answer)
+    gold_lemma = lemmatizer.lemmatize(gold)
 
-    # Check if either word is a derivative of the other
+    # Get synsets for both words
+    gold_synsets = wordnet.synsets(gold_lemma)
+    
+    # Check derivational relationships
     for gold_syn in gold_synsets:
         for lemma in gold_syn.lemmas():
-            # Check for derivationally related forms
-            related_forms = lemma.derivationally_related_forms()
-            if any(rel_form.name() == answer for rel_form in related_forms):
+            related_forms = {rel_form.name() for rel_form in lemma.derivationally_related_forms()}
+            if answer_lemma in related_forms or answer in related_forms:
                 return True
+    
+    # Heuristic: Check if gold is a participle form of a verb and answer is its agent noun
+    base_gold = lemmatizer.lemmatize(gold, pos='v')  # Convert to base verb if possible
+    if base_gold != gold and answer_lemma == base_gold + "er":
+        return True  # Handle cases like "startler" from "startle"
+    
+    # Additional rule: Common suffix patterns
+    derivational_patterns = [
+        (gold_lemma.endswith("ing") and answer_lemma == gold_lemma[:-3] + "er"),  # startling → startler
+        (gold_lemma.endswith("ed") and answer_lemma == gold_lemma[:-2] + "er"),  # startled → startler
+        (gold_lemma.endswith("y") and answer_lemma == gold_lemma[:-1] + "ed"),
+        (gold_lemma.endswith("ful") and answer_lemma == gold_lemma[:-3] + "able"),
+        (gold_lemma.endswith("metry") and answer_lemma == gold_lemma[:-5] + "meter"),
+        (gold_lemma.endswith("er") and answer_lemma == gold_lemma[:-2] + "y"),  # sticker → sticky # piercing → pierce
+    ]
+    
+    if any(derivational_patterns):
+        return True
 
     return False
+
 
 def make_completion(args, prompt):
     try:
@@ -143,11 +208,13 @@ if __name__ == "__main__":
 
     logger.info(args)
 
-    with open(args.input_data) as f:
-        data = [json.loads(line) for line in f.readlines()]
+    data = load_data(args.input_data)
+    
+    if args.start_idx > 0:
+        data = data.select(range(args.start_idx, len(data)))
     
     if args.max_samples > 0:
-        data = data[:args.max_samples]
+        data = data.select(range(args.max_samples))
     
     hits = 0
     for k, item in enumerate(tqdm(data)): 
@@ -238,7 +305,7 @@ New input:
         if args.mode == "cot":
             prompt += """\n\nAnswer by reasoning step by step, and eventually return your final answer (only one word) prefixed by "### Answer:"."""
         
-        GOLD_ANSWER = item['pun'][index_end_question+1:].strip()
+        GOLD_ANSWER = item['answer'].lower()
              
         if k == 0:
             logger.info(f"Selected prompt:\n{prompt}")
@@ -261,7 +328,19 @@ New input:
                 final_answer = completion.lower().split("### answer:")[1].replace(".","").strip()
             
             final_answer = final_answer.replace("-","")
-            correct = (final_answer.lower() == GOLD_ANSWER.lower() or is_derivative(final_answer.lower(), GOLD_ANSWER.lower()) or GOLD_ANSWER.lower() in final_answer.lower() or final_answer.lower() in GOLD_ANSWER.lower()) and final_answer != item['prefix']
+
+            final_answer_lower = final_answer.lower()
+            gold_answer_lower = GOLD_ANSWER.lower()
+            prefix = item['prefix'].lower()
+            
+            is_valid_prefix = final_answer_lower.startswith(prefix) and final_answer_lower != prefix
+            is_exact_match = final_answer_lower == gold_answer_lower
+            is_derivative_match = is_derivative(final_answer_lower, gold_answer_lower) or is_derivative(gold_answer_lower, final_answer_lower)
+            is_substring_match = gold_answer_lower in final_answer_lower or final_answer_lower in gold_answer_lower
+
+            correct = is_valid_prefix and (is_exact_match or is_derivative_match or is_substring_match)
+        
+            #correct = (final_answer.lower() == GOLD_ANSWER.lower() or is_derivative(final_answer.lower(), GOLD_ANSWER.lower()) or GOLD_ANSWER.lower() in final_answer.lower() or final_answer.lower() in GOLD_ANSWER.lower()) and final_answer != item['prefix']
             out_dict = {"pun": item['pun'], "answer": final_answer, "gold": GOLD_ANSWER, "correct": correct, "completion": completion, "prompt": prompt}
             json.dump(out_dict, f, ensure_ascii=False)
             f.write("\n")

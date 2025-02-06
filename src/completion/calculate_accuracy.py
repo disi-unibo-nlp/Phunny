@@ -26,7 +26,7 @@ from datasets import load_dataset
 
 @dataclass
 class ScriptArguments:
-    input_data: Optional[str] = field(default="out/completion/Phi-3.5-mini-instruct/direct/2025-01-31 22:18:41.175721/completions_direct.jsonl", metadata={"help": "Input data file path."})
+    input_data: Optional[str] = field(default="out/completion/phi-4/direct/2025-02-04 15:15:11.087889/completions_direct.jsonl", metadata={"help": "Input data file path."})
 
 def load_data(input_path):
     try:
@@ -105,8 +105,13 @@ if __name__ == "__main__":
     for item in tqdm(data):
         final_answer_lower = item['answer'].lower()
         gold_answer_lower = item['gold'].lower()
+        item['surely_false'] = False
         prefix = item['pun'].lower().split("that")[0].replace("what do you call a","").strip()
+        
         is_valid_prefix = final_answer_lower.startswith(prefix) and final_answer_lower != prefix
+        if not is_valid_prefix:
+            item['surely_false'] = True
+
         is_exact_match = final_answer_lower == gold_answer_lower
         is_derivative_match = is_derivative(final_answer_lower, gold_answer_lower) or is_derivative(gold_answer_lower, final_answer_lower)
         is_substring_match = gold_answer_lower in final_answer_lower or final_answer_lower in gold_answer_lower

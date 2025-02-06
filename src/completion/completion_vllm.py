@@ -27,8 +27,9 @@ load_dotenv()
 # meta-llama/Llama-3.1-8B-Instruct microsoft/Phi-3.5-mini-instruct # microsoft/phi-4
 @dataclass
 class ScriptArguments:
-    model_name: Optional[str] = field(default="microsoft/Phi-3.5-mini-instruct", metadata={"help": "model's HF directory or local path"})
-    input_data: Optional[str] = field(default="data/data_phunny.jsonl", metadata={"help": "Input data file path."})
+    model_name: Optional[str] = field(default="microsoft/phi-4", metadata={"help": "model's HF directory or local path"})
+    input_data: Optional[str] = field(default="disi-unibo-nlp/Phunny", metadata={"help": "Input data file path."})
+    split: Optional[str] = field(default="main", metadata={"help": "Split of the dataset to use during inference.", "choices": ["main", "contaminated", "few-shot"]})
     out_dir: Optional[str] =  field(default="./out", metadata={"help": "outputs directory"})
     max_samples: Optional[int] = field(default=-1, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
     start_idx: Optional[int] = field(default=0, metadata={"help": "Index of first prompt to process."})
@@ -71,6 +72,7 @@ def load_data(input_path):
     try:
         # Try to load from Hugging Face Hub
         dataset = load_dataset(input_path)
+        dataset = dataset[args.split]
         return dataset
     except Exception:
         # If loading from HF fails, check if it's a local path

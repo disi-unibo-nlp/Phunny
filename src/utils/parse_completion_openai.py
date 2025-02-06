@@ -6,13 +6,31 @@ from dotenv import load_dotenv
 from typing import Optional
 from dataclasses import dataclass, field
 from transformers import HfArgumentParser
+from datasets import load_dataset
+import os
 # parse input args
    
 @dataclass
 class ScriptArguments:
-    input_file: Optional[str] = field(default="out/resolution/batch_api/2025-02-03_11-56-36/completions.jsonl", metadata={"help": "directory where to store results."})
-    task: Optional[str] = field(default="resolution", metadata={"help": "task to consider for parsing.", "choices": ["generation", "resolution", "comprehension"]})
+    input_file: Optional[str] = field(default="out/generation/batch_api/2025-02-06_15-24-50/completions.jsonl", metadata={"help": "directory where to store results."})
+    task: Optional[str] = field(default="generation", metadata={"help": "task to consider for parsing.", "choices": ["generation", "resolution", "comprehension"]})
+    gen_type: Optional[str] = field(default="free", metadata={"help": "task to consider for parsing.", "choices": ["free", "driven"]})
     input_data: Optional[str] = field(default="data/data_phunny.jsonl", metadata={"help": "Input data file path."})
+
+def load_data(input_path):
+    try:
+        # Try to load from Hugging Face Hub
+        dataset = load_dataset(input_path)
+        dataset = dataset['main']
+        
+        return dataset
+    except Exception:
+        # If loading from HF fails, check if it's a local path
+        if os.path.exists(input_path):
+            dataset = load_dataset("json", data_files=args.input_data)['train']
+            return dataset
+        else:
+            raise FileNotFoundError(f"Dataset not found in Hugging Face Hub or locally: {input_path}")
 
 
 def is_derivative(answer, gold):
@@ -50,21 +68,53 @@ if __name__ == "__main__":
         completions = [json.loads(line) for line in f.readlines()]
     
     if args.task == "resolution":
-        with open(args.input_data) as f:
-            data = [json.loads(line) for line in f.readlines()]
-            data = data[:len(completions)]
+        data = load_data(args.input_data)
+        data = data.select(range(len(completions)))
 
     hits_resolution = 0
     print("Num of completions:", completions)
     for k, completion in enumerate(completions):
         model_completion = completion['response']['body']['choices'][0]['message']['content']
-
-        if args.task == "generation":
-            pun = model_completion.replace("pun:", "")
-            with open(out_dir + "/puns.jsonl", "a") as f:
-                json.dump({"pun": pun.strip(), "id": completion['custom_id']}, f, ensure_ascii=False)
-                f.write("\n")
         
+        if args.task == "generation" and args.gen_type == "driven":
+            prefix = completion['custom_id'].split("-")[-1].strip()
+            start_index =  model_completion.lower().rfind("answer:")
+            if start_index >= 0: 
+                answer = model_completion[start_index+len('answer:'):].strip()
+                y_xz = answer.split(",")
+                y = y_xz[0].lower().replace('y=', '').replace("'", '') if 'y=' in y_xz[0].lower() or 'y =' in y_xz[0].lower().replace('xz=', '').replace("'", '').replace(".", "").strip() else y_xz[1]
+                xz = y_xz[1].lower().replace('xz=', '').replace("'", '').replace(".", "").strip() if 'xz=' in y_xz[1].lower() or 'xz =' in y_xz[1].lower().replace('y=', '').replace("'", '') else y_xz[0]
+                
+                pun = f"What do you call a {prefix} that {y}? {xz.strip()}"
+                is_valid = xz.startswith(prefix.lower())
+                with open(out_dir + "/puns.jsonl", "a") as f:
+                    json.dump({"pun": pun.strip(), "definition": y.strip(), "answer": xz.replace(".","").strip(), "valid" : "" if is_valid else False, "id": completion['custom_id']}, f, ensure_ascii=False)
+                    f.write("\n")
+        elif args.task == "generation" and args.gen_type == "free":
+            start_index = model_completion.lower().rfind("pun:")
+            if start_index >= 0:
+                pun = model_completion[start_index:].lower().replace("pun:","").strip()
+                #pun = model_completion.lower().split("pun:")[1].strip() if "pun:" in model_completion else model_completion
+                #print("PUN:", pun)
+                prefix = pun.lower().split("what do you call a")[1].split("that")[0].strip() if "what do you call a" in pun.lower() else ""
+                if prefix:
+                    answer = pun.split("?")[1].strip() if "?" in pun else ""
+                    is_valid = answer.lower().startswith(prefix.lower())
+                else:
+                    pun = ""
+                    is_valid = False
+                    answer = ""
+                    prefix = ""
+            else: 
+                pun = ""
+                is_valid = False
+                answer = ""
+                prefix = ""
+
+            with open(out_dir + "/puns.jsonl", "a") as f:
+                json.dump({"pun": pun.strip(), "prefix": prefix, "answer": answer, "valid" : "" if is_valid else False, "id": completion['custom_id']}, f, ensure_ascii=False)
+                f.write("\n")
+
         elif args.task == "resolution":
     
             final_answer = model_completion.lower().split("### answer:")[1].strip() if "### answer:" in model_completion.lower() else ""
@@ -79,5 +129,6 @@ if __name__ == "__main__":
             if correct:
                 hits_resolution += 1
 
-    print(f"Completed generation for {len(data)} samples.")
-    print(f"Pass@1: {hits_resolution/len(data)*100}")
+    if args.task == "resolution":
+        print(f"Completed generation for {len(data)} samples.")
+        print(f"Pass@1: {hits_resolution/len(data)*100}")

@@ -28,11 +28,11 @@ from nltk.corpus import wordnet
 @dataclass
 class ScriptArguments:
     model_name: Optional[str] = field(default="gemini-1.5-flash", metadata={"help": "model's HF directory or local path"})
-    input_data: Optional[str] = field(default="out/generation/deepseek-chat/puns-deepseek-chat-def.jsonl", metadata={"help": "Input data file path."})
+    input_data: Optional[str] = field(default="out/generation/batch_api/2025-02-06_15-24-50/puns.jsonl", metadata={"help": "Input data file path."})
     max_samples: Optional[int] = field(default=-1, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
     start_idx: Optional[int] = field(default=0, metadata={"help": "Index of first prompt to process."})
     top_p: Optional[float] = field(default=1.0, metadata={"help": "Top p sampling."})
-    top_k: Optional[float] = field(default=40, metadata={"help": "Top p sampling."})
+    top_k: Optional[float] = field(default=40, metadata={"help": "Top k sampling."})
     n_sampling: Optional[int] = field(default=12, metadata={"help": "Number of prompts to sample for each question"})
     temperature: Optional[float] = field(default=0, metadata={"help": "Sampling temperature parameter"})
     n_shots: Optional[str] = field(default="5", metadata={"help": "Number of shots to use for each prompts."})
@@ -224,5 +224,10 @@ Explain briefly your decision and then answer with "yes" or "no" prefixed by "An
     print("Conversion to excel...")
     with open(f'out/generation/evaluation/{MODEL_NAME}/{output_dir}/eval-{MODEL_NAME}.jsonl') as f:
         data_to_convert = [json.loads(line) for line in f.readlines()]
+    
+    data_valid = [el for el in data_to_convert if el['valid']]
+    print("Accuracy:", round(len(data_valid) / len(data_to_convert) * 100, 1))
     pd.DataFrame(data_to_convert).to_excel(f'out/generation/evaluation/{MODEL_NAME}/{output_dir}/eval-{MODEL_NAME}.xlsx', index=False)
+    
+    
     print("Done!")

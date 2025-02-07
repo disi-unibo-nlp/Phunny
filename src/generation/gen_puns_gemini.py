@@ -36,7 +36,7 @@ class ScriptArguments:
     n_shots: Optional[str] = field(default="5", metadata={"help": "Number of shots to use for each prompts."})
     random_shots: Optional[bool] = field(default=True, metadata={"help": "Whether to use random or fixed example shots."})
     mode: Optional[str] = field(default="cot", metadata={"help": "Modality of prompting: chain-of-thoughts or direct inference.", "choices": ["cot", "direct"]})
-    gen_type: Optional[str] = field(default="free", metadata={"help": "Modality of prompting: chain-of-thoughts or direct inference.", "choices": ["free", "driven"]})
+    gen_type: Optional[str] = field(default="driven", metadata={"help": "Modality of prompting: chain-of-thoughts or direct inference.", "choices": ["free", "driven"]})
 
 
 def load_subjects(input_path):
@@ -134,6 +134,8 @@ if __name__ == "__main__":
     if args.gen_type == "driven":
         data = load_subjects(args.input_data)
         print("NUMBER OF UNIQUE data:", len(data))
+        if args.start_idx > 0:
+            data = data[args.start_idx:]
     elif args.gen_type == "free":
         data = range(args.n_sampling)
     
@@ -230,7 +232,7 @@ What do you call a X='{subject}' that Y? XZ."""
                 response = model.generate_content(prompt)
         
             
-            if args.gen_type == "driven":
+            if response and args.gen_type == "driven":
                 y = ""
                 xz= ""
                 pun = ""
@@ -248,7 +250,7 @@ What do you call a X='{subject}' that Y? XZ."""
                     json.dump({"pun": pun.strip(), "definition": y.strip(), "answer": xz.replace(".","").strip(), "valid" : "" if is_valid else False, "id": id}, f, ensure_ascii=False)
                     f.write("\n")
                 
-            else:
+            elif response and args.gen_type == "free":
                 pun = response.text.lower().split("### pun:")[1].strip()
                 cot = response.text.lower().split("### pun:")[0].strip()
                 prefix_question = pun.split("that")[0]

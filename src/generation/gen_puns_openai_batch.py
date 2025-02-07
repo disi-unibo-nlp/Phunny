@@ -18,7 +18,7 @@ from datasets import load_dataset
 
 @dataclass
 class ScriptArguments:
-    model_name: Optional[str] = field(default="gpt-4o-2024-08-06", metadata={"help": "model's HF directory or local path"})
+    model_name: Optional[str] = field(default="gpt-4o-mini-2024-07-18", metadata={"help": "model's HF directory or local path"})
     input_data: Optional[str] = field(default="disi-unibo-nlp/Phunny", metadata={"help": "Input data file path."})
     split: Optional[str] = field(default="main", metadata={"help": "Split of the dataset to use during inference.", "choices": ["main", "contaminated", "few-shot"]})
     max_samples: Optional[int] = field(default=-1, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
@@ -28,7 +28,7 @@ class ScriptArguments:
     temperature: Optional[float] = field(default=1.0, metadata={"help": "Sampling temperature parameter"})
     n_shots: Optional[str] = field(default="5", metadata={"help": "Number of shots to use for each prompts."})
     mode: Optional[str] = field(default="cot", metadata={"help": "Modality of prompting: chain-of-thoughts or direct inference.", "choices": ["cot", "direct"]})
-    gen_type: Optional[str] = field(default="free", metadata={"help": "Modality of prompting: chain-of-thoughts or direct inference.", "choices": ["free", "driven"]})
+    gen_type: Optional[str] = field(default="driven", metadata={"help": "Modality of prompting: chain-of-thoughts or direct inference.", "choices": ["free", "driven"]})
 
 
 def load_subjects(input_path):
@@ -58,25 +58,27 @@ if __name__ == "__main__":
 
     HF_TOKEN = os.getenv("HF_TOKEN")
     login(token=HF_TOKEN)
+
+     # parse input args
+    parser = HfArgumentParser(ScriptArguments)
+    args = parser.parse_args_into_dataclasses()[0]
+    MODEL_NAME =  args.model_name 
     
     now = datetime.now()
     # Format the date and time as a string
     output_dir = now.strftime("%Y-%m-%d_%H-%M-%S")
-    os.makedirs(f'out/generation/batch_api/{output_dir}', exist_ok=True)
+    os.makedirs(f'out/generation/batch_api/{MODEL_NAME}/{args.mode}/{args.gen_type}/{output_dir}', exist_ok=True)
     # set up logging to file
     logging.basicConfig(level=logging.DEBUG,
                         datefmt="%m/%d/%Y %H:%M:%S",
                         format="[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s",
-                        filename=f"out/generation/batch_api/{output_dir}/batch.log",
+                        filename=f"out/generation/batch_api/{MODEL_NAME}/{args.mode}/{args.gen_type}/{output_dir}/batch.log",
                         filemode='w')
 
     logger = logging.getLogger(__name__)
     logger.addHandler(logging.StreamHandler())
 
-    # parse input args
-    parser = HfArgumentParser(ScriptArguments)
-    args = parser.parse_args_into_dataclasses()[0]
-    MODEL_NAME =  args.model_name 
+   
     
     if args.gen_type == "free":
         SHOTS = [
@@ -167,7 +169,7 @@ What do you call a X='{subject}' that Y? XZ."""
             batch_request['body']["messages"].append({"role": "user", "content": prompt})
 
             batch_request["custom_id"] = f"request-{n_shot}shot-{k}-{subject}" if args.gen_type == "driven" else f"request-{n_shot}shot-{k}"
-            with open(f'out/generation/batch_api/{output_dir}/input_batch.jsonl', 'a') as f:
+            with open(f'out/generation/batch_api/{MODEL_NAME}/{args.mode}/{args.gen_type}/{output_dir}/input_batch.jsonl', 'a') as f:
                 json.dump(batch_request, f, ensure_ascii=False)
                 f.write("\n")
                 total_promtps+=1
@@ -176,7 +178,7 @@ What do you call a X='{subject}' that Y? XZ."""
     logger.info(f"TOTAL PROMPTS: {total_promtps}")
     
     batch_input_file = client.files.create(
-    file=open(f"out/generation/batch_api/{output_dir}/input_batch.jsonl", "rb"),
+    file=open(f"out/generation/batch_api/{MODEL_NAME}/{args.mode}/{args.gen_type}/{output_dir}/input_batch.jsonl", "rb"),
     purpose="batch"
     )
 
@@ -195,6 +197,6 @@ What do you call a X='{subject}' that Y? XZ."""
     batch_id = batch_obj.id
     logger.info(f"BATCH ID: {batch_id}")
 
-    with open(f'out/generation/batch_api/{output_dir}/batch_id.txt', 'w') as f:
+    with open(f'out/generation/batch_api/{MODEL_NAME}/{args.mode}/{args.gen_type}/{output_dir}/batch_id.txt', 'w') as f:
         f.write(batch_id)
     

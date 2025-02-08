@@ -33,13 +33,13 @@ class ScriptArguments:
     out_dir: Optional[str] =  field(default="./out", metadata={"help": "outputs directory"})
     max_samples: Optional[int] = field(default=-1, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
     start_idx: Optional[int] = field(default=0, metadata={"help": "Index of first prompt to process."})
-    batch_size: Optional[int] = field(default=8, metadata={"help": "Maximum number of data to process per batch."})
+    batch_size: Optional[int] = field(default=4, metadata={"help": "Maximum number of data to process per batch."})
     cache_dir: Optional[str] =  field(default=None, metadata={"help": "cache dir to store model weights"})
     max_model_len: Optional[int] = field(default=1024, metadata={"help": "Maximum input sequence length"})
     max_new_tokens: Optional[int] = field(default=None, metadata={"help": "Maximum new tokens to generate."})
-    top_p: Optional[float] = field(default=1.0, metadata={"help": "Top p sampling."})
+    top_p: Optional[float] = field(default=0.95, metadata={"help": "Top p sampling."})
     n_out_sequences: Optional[int] = field(default=1, metadata={"help": "Number of generated sequences per instance"})
-    temperature: Optional[float] = field(default=0.9, metadata={"help": "Sampling temperature parameter"})
+    temperature: Optional[float] = field(default=1.0, metadata={"help": "Sampling temperature parameter"})
     n_gpus: Optional[int] = field(default=1, metadata={"help": "Number of gpus to use for inference. Default is 1."})
     mode: Optional[str] = field(default="cot", metadata={"help": "Modality of prompting: chain-of-thoughts or direct inference.", "choices": ["cot", "direct"]})
     gen_type: Optional[str] = field(default="free", metadata={"help": "Modality of prompting: chain-of-thoughts or direct inference.", "choices": ["free", "driven"]})
@@ -176,8 +176,24 @@ if __name__ == "__main__":
         
         if args.gen_type == "driven":
             index_end_question = item['pun'].rfind("?")
+            gold_answer = ""
+            prefix = item
+
             
             pun = item['pun'][:index_end_question+1]
+            prompt = f"""Given a subject X, create an English pun using the format "What do you call a X that Y? XZ".
+    
+Follow these guidelines:
+
+- Attach a suffix Z to X, forming a real word XZ (the punchline).
+- Ensure XZ’s actual definition naturally replaces Y, making the joke logical.
+- Do not use compound words (e.g., dog → dogsitter, star → starlight) or derivatives of X (e.g., dog → doggy, rat → rats, pay → payment) as value of XZ.
+
+Example pun(s):
+{shots_selected}
+
+New input:
+What do you call a X='{subject}' that Y? XZ."""
             
 
         if args.gen_type == "free":
@@ -203,6 +219,8 @@ Example pun(s):
             prompt += """\n\nReturn as output ONLY the final values of Y and XZ, prefixed by "### answer:"."""
         elif args.mode == "cot" and args.gen_type == "free":
             prompt += """\n\nThink step by step and eventually return the new pun, prefixed by "### pun:"."""
+            #prompt += """\n\nFirst, think step by step and eventually return the new pun.\n\nThis must be your output format:\n### rationale: {step by step reasoning}\n### pun: {your new pun}.\n\nDon't add further infos."""
+
         elif args.mode == "direct" and args.gen_type == "free":
             prompt += """\n\nReturn as output ONLY the new pun, prefixed by "### pun:"."""
     
@@ -289,13 +307,17 @@ Example pun(s):
                     
                 else:
                     pun = completion.lower().split("### pun:")[1].strip() if "### pun:" in completion.lower() else ""
-                    cot = completion.lower().split("### pun:")[0].strip()
-                    prefix_question = pun.split("that")[0]
-                    prefix_question = prefix_question.replace("what do you call an", "what do you call a")
-                    prefix_question = prefix_question.replace("what do you call a", "").replace("### pun:", "").strip()
-                    answer_question = pun.split("?")[1].replace(".", "").strip()
-                    is_valid = answer_question.lower().startswith(prefix_question)
+                    answer_question = ""
+                    is_valid = False
+                    cot = ""
+                    if pun:
+                        cot = completion.lower().split("### pun:")[0].strip()
+                        prefix_question = prefixes[id_out]
+                        prefix_question = prefix_question.replace("what do you call an", "what do you call a")
+                        prefix_question = prefix_question.replace("what do you call a", "").replace("### pun:", "").strip()
+                        answer_question = pun.split("?")[1].replace(".", "").strip()
+                        is_valid = answer_question.lower().startswith(prefix_question)
 
                     with open(output_dir_path + f'/puns-{model_name}.jsonl', 'a') as f:
-                        json.dump({"pun": pun, "prefix": prefix_question, "answer": answer_question, "valid": "" if is_valid else False, "cot": cot, "id": ids[id_out]}, f, ensure_ascii=False)
+                        json.dump({"pun": pun, "prefix": prefixes[id_out], "answer": answer_question, "valid": "" if is_valid else False, "cot": cot, "id": ids[id_out]}, f, ensure_ascii=False)
                         f.write("\n")

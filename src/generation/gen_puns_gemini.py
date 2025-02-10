@@ -230,7 +230,15 @@ What do you call a X='{subject}' that Y? XZ."""
                 )
             else: 
                 response = model.generate_content(prompt)
-        
+
+            if MODEL_NAME == "gemini-2.0-flash-thinking-exp":
+                model_reasoning = ""
+                for part in response.candidates[0].content.parts:
+                    if part.thought:
+                        model_reasoning = part.text
+                        logger.info(f"RESONING: {model_reasoning}")
+                    else:
+                        response = part
             
             if response and args.gen_type == "driven":
                 y = ""
@@ -238,7 +246,9 @@ What do you call a X='{subject}' that Y? XZ."""
                 pun = ""
                 valid = False
                 start_index =  response.text.lower().rfind("### answer:")
+                cot = model_reasoning if model_reasoning else response.text.lower().split("### answer:")[0].strip()
                 if start_index >= 0:
+                    
                     answer = response.text.lower()[start_index+len('### answer:'):].strip()
                     y_xz = answer.split(",")
                     y = y_xz[0].lower().replace('y=', '').replace("'", '') if 'y=' in y_xz[0].lower() or 'y =' in y_xz[0].lower().replace('xz=', '').replace("'", '').replace(".", "").strip() else y_xz[1]
@@ -247,7 +257,7 @@ What do you call a X='{subject}' that Y? XZ."""
                     is_valid = xz.startswith(subject.lower())
 
                 with open(f'out/generation/{MODEL_NAME}/{args.mode}/{args.gen_type}/{output_dir}/puns-{MODEL_NAME}.jsonl', "a") as f:
-                    json.dump({"pun": pun.strip(), "definition": y.strip(), "answer": xz.replace(".","").strip(), "valid" : "" if is_valid else False, "id": id}, f, ensure_ascii=False)
+                    json.dump({"pun": pun.strip(), "definition": y.strip(), "answer": xz.replace(".","").strip(), "valid" : "" if is_valid else False, "cot": cot, "id": id}, f, ensure_ascii=False)
                     f.write("\n")
                 
             elif response and args.gen_type == "free":

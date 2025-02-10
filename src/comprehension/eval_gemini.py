@@ -25,8 +25,8 @@ import google.generativeai as genai
 @dataclass
 class ScriptArguments:
     judge_name: Optional[str] = field(default="gemini-1.5-flash", metadata={"help": "model's HF directory or local path"})
-    model_name: Optional[str] = field(default="gemini-2.0-flash-thinking-exp", metadata={"help": "model's HF directory or local path"})
-    input_data: Optional[str] = field(default="out/comprehension/2025-02-10_09-51-25/gemini-2.0-flash-thinking-exp_illogical_most_similar.jsonl", metadata={"help": "Input data file path."})
+    model_name: Optional[str] = field(default="gpt-4o-2024-08-06", metadata={"help": "model's HF directory or local path"})
+    input_data: Optional[str] = field(default="out/comprehension/batch_api/gpt-4o-2024-08-06/illogical_least_similar/2025-02-10_15-47-55/comprehension_illogical_least_similar.jsonl", metadata={"help": "Input data file path."})
     max_samples: Optional[int] = field(default=-1, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
     start_idx: Optional[int] = field(default=0, metadata={"help": "Index of first prompt to process."})
     top_p: Optional[float] = field(default=1.0, metadata={"help": "Top p sampling."})
@@ -111,7 +111,7 @@ if __name__ == "__main__":
 - First, '{answer}' starts with '{prefix}' or '{answer}' sounds like {prefix} or '{answer}' is a play of words with '{prefix}'.
 - Second, '{answer}' means '{definition}' or '{answer}' is highly associated to '{definition}'."""
 
-            prompt = f"""Determine whether the given explanations are equivlent. This means that the predicted answer should match both of the two reasons given by the gold answer.
+            prompt = f"""Determine whether the given explanations are equivalent. This means that the predicted answer should match both of the two reasons given by the gold answer.
 
 Gold explanation:
 {gold_rationale.strip()}

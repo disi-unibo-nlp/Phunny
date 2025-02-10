@@ -8,14 +8,25 @@ from dataclasses import dataclass, field
 from transformers import HfArgumentParser
 from datasets import load_dataset
 import os
+import re
 # parse input args
-   
+# data/Phunny_cohmprension.jsonl  data/data_phunny.jsonl data/Phunny.jsonl
 @dataclass
 class ScriptArguments:
-    input_file: Optional[str] = field(default="out/generation/batch_api/2025-02-06_15-24-50/completions.jsonl", metadata={"help": "directory where to store results."})
+    input_file: Optional[str] = field(default="out/generation/batch_api/o3-mini-2025-01-31/cot/driven/2025-02-08_00-33-37/completions.jsonl", metadata={"help": "directory where to store results."})
     task: Optional[str] = field(default="generation", metadata={"help": "task to consider for parsing.", "choices": ["generation", "resolution", "comprehension"]})
-    gen_type: Optional[str] = field(default="free", metadata={"help": "task to consider for parsing.", "choices": ["free", "driven"]})
-    input_data: Optional[str] = field(default="data/data_phunny.jsonl", metadata={"help": "Input data file path."})
+    gen_type: Optional[str] = field(default="driven", metadata={"help": "task to consider for parsing.", "choices": ["free", "driven"]})
+    input_data: Optional[str] = field(default="data/Phunny_cohmprension.jsonl", metadata={"help": "Input data file path."})
+
+def extract_values(text):
+    # Regex pattern to match various separators: comma, "and", semicolon, or newline
+    match = re.search(r'Y\s*=\s*[\"“”]?(.*?)[\"“”]?\s*(?:,|\band\b|;|\n|$).*?XZ\s*=\s*[\"“”]?(.*?)[\"“”]?(?=[,;\n]|$)', text, re.IGNORECASE)
+
+    if match:
+        y_value = match.group(1).replace('"','').replace("'",'').strip()
+        xz_value = match.group(2).replace('"','').replace("'",'').strip()
+        return y_value, xz_value
+    return None, None
 
 def load_data(input_path):
     try:
@@ -81,10 +92,10 @@ if __name__ == "__main__":
             start_index =  model_completion.lower().rfind("answer:")
             if start_index >= 0: 
                 answer = model_completion[start_index+len('answer:'):].strip()
-                y_xz = answer.split(",")
-                y = y_xz[0].lower().replace('y=', '').replace("'", '') if 'y=' in y_xz[0].lower() or 'y =' in y_xz[0].lower().replace('xz=', '').replace("'", '').replace(".", "").strip() else y_xz[1]
-                xz = y_xz[1].lower().replace('xz=', '').replace("'", '').replace(".", "").strip() if 'xz=' in y_xz[1].lower() or 'xz =' in y_xz[1].lower().replace('y=', '').replace("'", '') else y_xz[0]
-                
+                # y_xz = answer.split(",")
+                # y = y_xz[0].lower().replace('y=', '').replace("'", '') if 'y=' in y_xz[0].lower() or 'y =' in y_xz[0].lower().replace('xz=', '').replace("'", '').replace(".", "").strip() else y_xz[1]
+                # xz = y_xz[1].lower().replace('xz=', '').replace("'", '').replace(".", "").strip() if 'xz=' in y_xz[1].lower() or 'xz =' in y_xz[1].lower().replace('y=', '').replace("'", '') else y_xz[0]
+                y, xz = extract_values(answer.lower())
                 pun = f"What do you call a {prefix} that {y}? {xz.strip()}"
                 is_valid = xz.startswith(prefix.lower())
                 with open(out_dir + "/puns.jsonl", "a") as f:
@@ -128,6 +139,23 @@ if __name__ == "__main__":
             
             if correct:
                 hits_resolution += 1
+        
+        elif args.task == "comprehension":
+            id_request = int(completion['custom_id'].split("-")[-1].replace("id", "").strip())
+            pun = data['pun'][id_request]
+
+            if "illogical" not in args.input_data.lower() and "logical" in args.input_data.lower():
+                MODE = "logical"
+            elif "illogical" in args.input_data.lower() and "most_similar" in args.input_data.lower():
+                MODE = "illogical_most_similar"
+            elif "illogical" in args.input_data.lower() and "least_similar" in args.input_data.lower():
+                MODE = "illogical_least_similar"
+
+            with open(out_dir + f"/comprehension_{MODE}_.jsonl", "a") as f:
+                json.dump(out_dict, f, ensure_ascii=False)
+                f.write("\n")
+
+
 
     if args.task == "resolution":
         print(f"Completed generation for {len(data)} samples.")

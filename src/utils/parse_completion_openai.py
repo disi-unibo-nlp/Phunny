@@ -13,10 +13,10 @@ import re
 # data/Phunny_cohmprension.jsonl  data/data_phunny.jsonl data/Phunny.jsonl
 @dataclass
 class ScriptArguments:
-    input_file: Optional[str] = field(default="out/generation/batch_api/o3-mini-2025-01-31/cot/driven/2025-02-08_00-33-37/completions.jsonl", metadata={"help": "directory where to store results."})
-    task: Optional[str] = field(default="generation", metadata={"help": "task to consider for parsing.", "choices": ["generation", "resolution", "comprehension"]})
+    input_file: Optional[str] = field(default="out/comprehension/batch_api/gpt-4o-2024-08-06/logical/2025-02-10_15-44-09/completions.jsonl", metadata={"help": "directory where to store results."})
+    task: Optional[str] = field(default="comprehension", metadata={"help": "task to consider for parsing.", "choices": ["generation", "resolution", "comprehension"]})
     gen_type: Optional[str] = field(default="driven", metadata={"help": "task to consider for parsing.", "choices": ["free", "driven"]})
-    input_data: Optional[str] = field(default="data/Phunny_cohmprension.jsonl", metadata={"help": "Input data file path."})
+    input_data: Optional[str] = field(default="data/Phunny_comprehension.jsonl", metadata={"help": "Input data file path."})
 
 def extract_values(text):
     # Regex pattern to match various separators: comma, "and", semicolon, or newline
@@ -78,12 +78,12 @@ if __name__ == "__main__":
     with open(args.input_file) as f:
         completions = [json.loads(line) for line in f.readlines()]
     
-    if args.task == "resolution":
+    if args.task in ["resolution", 'comprehension']:
         data = load_data(args.input_data)
         data = data.select(range(len(completions)))
 
     hits_resolution = 0
-    print("Num of completions:", completions)
+    #print("Num of completions:", completions)
     for k, completion in enumerate(completions):
         model_completion = completion['response']['body']['choices'][0]['message']['content']
         
@@ -142,20 +142,28 @@ if __name__ == "__main__":
         
         elif args.task == "comprehension":
             id_request = int(completion['custom_id'].split("-")[-1].replace("id", "").strip())
-            pun = data['pun'][id_request]
+            
 
-            if "illogical" not in args.input_data.lower() and "logical" in args.input_data.lower():
+            if "illogical" not in args.input_file.lower() and "logical" in args.input_file.lower():
                 MODE = "logical"
-            elif "illogical" in args.input_data.lower() and "most_similar" in args.input_data.lower():
+            elif "illogical" in args.input_file.lower() and "most_similar" in args.input_file.lower():
                 MODE = "illogical_most_similar"
-            elif "illogical" in args.input_data.lower() and "least_similar" in args.input_data.lower():
+            elif "illogical" in args.input_file.lower() and "least_similar" in args.input_file.lower():
                 MODE = "illogical_least_similar"
+            
+            if MODE == "logical":
+                pun = data['pun'][id_request]
+            else:
+                new_subject = data[id_request]['most_similar'] if "most_similar" in MODE else data[id_request]['least_similar']
+                pun = f"What do you call a {new_subject} that {data[id_request]['definition']}? {data[id_request]['answer'][0]}"            
+            
+            out_dict = {"pun": pun, "answer": model_completion.strip()}
 
-            with open(out_dir + f"/comprehension_{MODE}_.jsonl", "a") as f:
+            with open(out_dir + f"/comprehension_{MODE}.jsonl", "a") as f:
                 json.dump(out_dict, f, ensure_ascii=False)
                 f.write("\n")
 
-
+    print("Saved at:", out_dir + f"/comprehension_{MODE}.jsonl")
 
     if args.task == "resolution":
         print(f"Completed generation for {len(data)} samples.")

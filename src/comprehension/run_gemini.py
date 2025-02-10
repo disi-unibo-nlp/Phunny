@@ -24,15 +24,15 @@ from dataclasses import dataclass, field
 
 @dataclass
 class ScriptArguments:
-    model_name: Optional[str] = field(default="gemini-1.5-flash", metadata={"help": "model's HF directory or local path"})
+    model_name: Optional[str] = field(default="gemini-2.0-flash-thinking-exp", metadata={"help": "model's HF directory or local path"})
     max_samples: Optional[int] = field(default=15, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
-    input_data: Optional[str] = field(default="data/candidate_dataset_comprehension_380.jsonl", metadata={"help": "Input data file path."})
+    input_data: Optional[str] = field(default="data/Phunny_cohmprension.jsonl", metadata={"help": "Input data file path."})
     start_idx: Optional[int] = field(default=0, metadata={"help": "Index of first prompt to process."})
     top_p: Optional[float] = field(default=1.0, metadata={"help": "Top p sampling."})
     top_k: Optional[float] = field(default=200, metadata={"help": "Top p sampling."})
     temperature: Optional[float] = field(default=0, metadata={"help": "Sampling temperature parameter"})
-    mode: Optional[str] = field(default="illogical", metadata={"help": "Number of shots to use for each prompts."})
-    illogical_selection: Optional[str] = field(default="least_similar", metadata={"help": "Number of shots to use for each prompts."})
+    mode: Optional[str] = field(default="logical", metadata={"help": "Number of shots to use for each prompts."})
+    illogical_selection: Optional[str] = field(default="most_similar", metadata={"help": "Number of shots to use for each prompts."})
 
 if __name__ == "__main__":
     load_dotenv()
@@ -63,6 +63,12 @@ if __name__ == "__main__":
         from google import genai
         from google.genai import types
         client = genai.Client(api_key=GEMINI_API_KEY)
+    
+    elif MODEL_NAME == "gemini-2.0-flash-thinking-exp":
+        from google import genai
+        from google.genai import types
+        client = genai.Client(api_key=GEMINI_API_KEY, http_options={'api_version':'v1alpha'})
+
     else:
         import google.generativeai as genai
         genai.configure(api_key=GEMINI_API_KEY)
@@ -85,11 +91,13 @@ if __name__ == "__main__":
     for k, item in enumerate(data): 
        
         if args.mode == "logical":
-            prompt = item['pun'] + "\n\nDid you get it?"
+            #prompt = item['pun'] + "\n\nDid you get it? Possible answers:\n- Yes, because {your explanation}\n- No, because {your explanation}\n\nDon't add further informations."
+            prompt = item['pun'] + "\n\nDid you get it? Possible answers:\n- Yes, for exactly two reasons. First, ... Second, ...\n- No, because ...\n\nDon't add further informations."
             
         else:
             new_subject = item['most_similar'] if args.illogical_selection=="most_similar" else item['least_similar']
-            prompt = f"What do you call a {new_subject} that {item['definition']}? {item['answer']}\n\nDid you get it?"
+            new_pun = f"What do you call a {new_subject} that {item['definition']}? {item['answer'][0]}"
+            prompt = f"{new_pun}\n\nDid you get it? Possible answers:\n- Yes, because {{your explanation}}\n- No, because {{your explanation}}\n\nDon't add further informations."
         
         logger.info(f"Selected prompt:\n{prompt}")
         
@@ -103,19 +111,41 @@ if __name__ == "__main__":
                 top_p=args.top_p,
                 )
             )
+        
+        elif MODEL_NAME == "gemini-2.0-flash-thinking-exp":
+            config = {'thinking_config': {'include_thoughts': True}}
+            response = client.models.generate_content(
+                model='gemini-2.0-flash-thinking-exp',
+                contents=prompt,
+                config=config
+            )
+
+            model_reasoning = ""
+            for part in response.candidates[0].content.parts:
+                if part.thought:
+                    model_reasoning = part.text
+                else:
+                    response = part
 
         else: 
             response = model.generate_content(prompt)
 
         completion = response.text.strip()
-       
+
+        if args.mode == "logical":
+            correct = completion.lower().replace("-", "").strip().startswith("yes")
+        
+        if args.mode == "illogical":
+            correct = completion.lower().replace("-", "").strip().startswith("no")
 
         output_file = f'out/comprehension/{output_dir}/{args.model_name}_{args.mode}.jsonl'
         if args.mode == "illogical":
             output_file = output_file.replace(".jsonl", f"_{args.illogical_selection}.jsonl")
-
+        
         with open(output_file, 'a') as f:
-            out_dict = {"pun": item['pun'], "prompt": prompt, "answer": completion}
+            out_dict = {"pun": new_pun if args.mode == "illogical" else item['pun'], "answer": completion, "correct": correct}
+            if MODEL_NAME == "gemini-2.0-flash-thinking-exp" and model_reasoning:
+                out_dict['cot'] = model_reasoning
             json.dump(out_dict, f, ensure_ascii=False)
             f.write("\n")
 
@@ -123,5 +153,12 @@ if __name__ == "__main__":
         time.sleep(6)
     
     logger.info(f"Completed generation for {len(data)} shot(s).")
+
+    logger.info(f"Exporting to excel file...")
+    output_file_xlsx = output_file.replace(".jsonl", ".xlsx")
+    with open(output_file) as f:
+        output_data = [json.loads(line) for line in f.readlines()]
+    
+    pd.DataFrame(output_data).to_excel(output_file_xlsx, index=False)
     
     print("Done!")

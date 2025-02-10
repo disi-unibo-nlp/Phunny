@@ -18,6 +18,7 @@ import nltk
 nltk.download('wordnet')
 from nltk.corpus import wordnet
 from nltk.stem import WordNetLemmatizer
+import random
 
 
 # Load variables from the .env file
@@ -27,9 +28,9 @@ load_dotenv()
 # meta-llama/Llama-3.1-8B-Instruct microsoft/Phi-3.5-mini-instruct # microsoft/phi-4 # casperhansen/llama-3.3-70b-instruct-awq
 @dataclass
 class ScriptArguments:
-    model_name: Optional[str] = field(default="casperhansen/llama-3.3-70b-instruct-awq", metadata={"help": "model's HF directory or local path"})
-    input_data: Optional[str] = field(default="disi-unibo-nlp/Phunny", metadata={"help": "Input data file path."})
-    split: Optional[str] = field(default="contaminated", metadata={"help": "Split of the dataset to use during inference.", "choices": ["main", "contaminated", "few-shot"]})
+    model_name: Optional[str] = field(default="microsoft/Phi-3.5-mini-instruct", metadata={"help": "model's HF directory or local path"})
+    input_data: Optional[str] = field(default="data/Phunny.jsonl", metadata={"help": "Input data file path."})
+    split: Optional[str] = field(default="main", metadata={"help": "Split of the dataset to use during inference.", "choices": ["main", "contaminated", "few-shot"]})
     out_dir: Optional[str] =  field(default="./out", metadata={"help": "outputs directory"})
     max_samples: Optional[int] = field(default=-1, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
     start_idx: Optional[int] = field(default=0, metadata={"help": "Index of first prompt to process."})
@@ -37,11 +38,11 @@ class ScriptArguments:
     cache_dir: Optional[str] =  field(default=None, metadata={"help": "cache dir to store model weights"})
     max_model_len: Optional[int] = field(default=1024, metadata={"help": "Maximum input sequence length"})
     max_new_tokens: Optional[int] = field(default=None, metadata={"help": "Maximum new tokens to generate."})
-    top_p: Optional[float] = field(default=0.95, metadata={"help": "Top p sampling."})
+    top_p: Optional[float] = field(default=1.0, metadata={"help": "Top p sampling."})
     n_out_sequences: Optional[int] = field(default=1, metadata={"help": "Number of generated sequences per instance"})
     temperature: Optional[float] = field(default=1.0, metadata={"help": "Sampling temperature parameter"})
     n_gpus: Optional[int] = field(default=1, metadata={"help": "Number of gpus to use for inference. Default is 1."})
-    mode: Optional[str] = field(default="cot", metadata={"help": "Modality of prompting: chain-of-thoughts or direct inference.", "choices": ["cot", "direct"]})
+    mode: Optional[str] = field(default="direct", metadata={"help": "Modality of prompting: chain-of-thoughts or direct inference.", "choices": ["cot", "direct"]})
     gen_type: Optional[str] = field(default="free", metadata={"help": "Modality of prompting: chain-of-thoughts or direct inference.", "choices": ["free", "driven"]})
     n_sampling:  Optional[int] = field(default=50, metadata={"help": "Number of puns to generate during free generation."})
     n_shots:  Optional[int] = field(default=5, metadata={"help": "Number of puns to generate during free generation."})
@@ -148,39 +149,43 @@ if __name__ == "__main__":
         data = range(args.n_sampling)
     
     if args.start_idx > 0:
-        data = data.select(range(args.start_idx, len(data)))
+        data = data[args.start_idx:]
     
     if args.max_samples > 0:
-        data = data.select(range(args.max_samples))
+        data = data[:args.max_samples]
     
     if args.gen_type == "free":
         SHOTS = [
-    "What do you call a gene that works everywhere? Generalizable.",
-    "What do you call a dog that is incontrovertibly true? Dogma.",
-    "What do you call a pen that is very sorry? Penitence.",
-    "What do you call a rat that is obsessed with stats? Ratio.",
-    "What do you call a star that leads the way? Starter."]
-    
+        "What do you call a gene that works everywhere? Generalizable.",
+        "What do you call a dog that is incontrovertibly true? Dogma.",
+        "What do you call a pen that is very sorry? Penitence.",
+        "What do you call a rat that is obsessed with stats? Ratio.",
+        "What do you call a star that is served by a waiter? Starter."
+        "What do you call a fan that plays an instrument? Fanfare.",
+        "What do you call a cat that is clear and obvious? Categorical",
+        "What do you call a port that is part of a whole? Portion.",
+        "What do you call a bowl that throws balls? Bowler.",
+        "What do you call a trip that multiplies by three? Triple."]
+     
     else:
         SHOTS = [
-    "What do you call a X='gene' that Y? XZ.\nAnswer: Y='works everywhere', XZ='generalizable'",
-    "What do you call a X='dog' that Y? XZ\nAnswer: Y='is incontrovertibly true', XZ='dogma'.",
-    "What do you call a X='pen' that Y? XZ.\nAnswer: Y='is very sorry', XZ='penitence'.",
-    "What do you call a X='rat' that Y? XZ.\nAnswer: Y='is obsessed with stats', XZ='ratio'.",
-    "What do you call a X='star' that Y? XZ.\nAnswer: Y='is served by a waiter', XZ='starter'."]    
+    "What do you call a X='gene' that Y? XZ.\n### answer: Y='works everywhere', XZ='generalizable'",
+    "What do you call a X='dog' that Y? XZ\n### answer: Y='is incontrovertibly true', XZ='dogma'.",
+    "What do you call a X='pen' that Y? XZ.\n### answer: Y='is very sorry', XZ='penitence'.",
+    "What do you call a X='rat' that Y? XZ.\n### answer: Y='is obsessed with stats', XZ='ratio'.",
+    "What do you call a X='star' that Y? XZ.\n### answer: Y='is served by a waiter', XZ='starter'."]    
       
-
+    print(data)
     prompts = []
     for i, item in enumerate(data):
         # currenlty only Qwen2.5-Math is handled. This part must be adapted for each LLM considered in our tests. Maybe a separate function in a utils folders might help.
-        
+        print(f"ITEM; {item}")
         if args.gen_type == "driven":
-            index_end_question = item['pun'].rfind("?")
+            
+            shots_selected = "\n\n".join(SHOTS[:args.n_shots])
             gold_answer = ""
             prefix = item
-
-            
-            pun = item['pun'][:index_end_question+1]
+            pun=""
             prompt = f"""Given a subject X, create an English pun using the format "What do you call a X that Y? XZ".
     
 Follow these guidelines:
@@ -193,13 +198,14 @@ Example pun(s):
 {shots_selected}
 
 New input:
-What do you call a X='{subject}' that Y? XZ."""
+What do you call a X='{prefix}' that Y? XZ."""
             
 
         if args.gen_type == "free":
             gold_answer = ""
             prefix = ""
             pun = ""
+            #shots_selected = random.sample(SHOTS, args.n_shots)
             shots_selected = "\n\n".join(SHOTS[:args.n_shots])
             prompt = f"""Given a subject X, create an English pun using the format "What do you call a X that Y? XZ".
 
@@ -214,12 +220,12 @@ Example pun(s):
 {shots_selected}"""
 
         if args.mode == "cot" and args.gen_type == "driven":
-            prompt += """\n\nThink step by step and eventually return the final values of Y and XZ, prefixed by "### answer:"."""
+            prompt += """\n\nThink step by step and eventually return the final values of Y and XZ prefixed by "### answer:". So, this must be the output format: ### answer: 'Y=...', XZ='...'. Don't add further infos."""
         elif args.mode == "direct" and args.gen_type == "driven":
-            prompt += """\n\nReturn as output ONLY the final values of Y and XZ, prefixed by "### answer:"."""
+            prompt += """\n\nReturn as output ONLY the final values of Y and XZ, prefixed by "### answer:". So, this must be the output format: ### answer: 'Y=...', XZ='...'. Don't add further infos."""
         elif args.mode == "cot" and args.gen_type == "free":
-            prompt += """\n\nThink step by step and eventually return the new pun, prefixed by "### pun:"."""
-            #prompt += """\n\nFirst, think step by step and eventually return the new pun.\n\nThis must be your output format:\n### rationale: {step by step reasoning}\n### pun: {your new pun}.\n\nDon't add further infos."""
+            #prompt += """\n\nThink step by step and eventually return the new pun, prefixed by "### pun:"."""
+            prompt += """\n\nFirst, think step by step. Then, return the new pun.\n\nThis must be your output format:\n### rationale: {step by step reasoning}\n### pun: {your new pun}.\n\nDon't add further infos."""
 
         elif args.mode == "direct" and args.gen_type == "free":
             prompt += """\n\nReturn as output ONLY the new pun, prefixed by "### pun:"."""
@@ -296,17 +302,22 @@ Example pun(s):
                     if start_index >= 0:
                         answer = completion.lower()[start_index+len('### answer:'):].strip()
                         y_xz = answer.split(",")
-                        y = y_xz[0].lower().replace('y=', '').replace("'", '') if 'y=' in y_xz[0].lower() or 'y =' in y_xz[0].lower().replace('xz=', '').replace("'", '').replace(".", "").strip() else y_xz[1]
-                        xz = y_xz[1].lower().replace('xz=', '').replace("'", '').replace(".", "").strip() if 'xz=' in y_xz[1].lower() or 'xz =' in y_xz[1].lower().replace('y=', '').replace("'", '') else y_xz[0]
+                        subject = prefixes[id_out]
+                        try:
+                            y = y_xz[0].lower().replace('y=', '').replace("'", '') if 'y=' in y_xz[0].lower() or 'y =' in y_xz[0].lower().replace('xz=', '').replace("'", '').replace(".", "").strip() else y_xz[1]
+                            xz = y_xz[1].lower().replace('xz=', '').replace("'", '').replace(".", "").strip() if 'xz=' in y_xz[1].lower() or 'xz =' in y_xz[1].lower().replace('y=', '').replace("'", '') else y_xz[0]
+                        except:
+                            y=""
+                            xz=""
                         pun = f"What do you call a {subject} that {y}? {xz.strip()}"
                         is_valid = xz.startswith(subject.lower())
 
                     with open(output_dir_path + f'/puns-{model_name}.jsonl', "a") as f:
-                        json.dump({"pun": pun.strip(), "definition": y.strip(), "answer": xz.replace(".","").strip(), "valid" : "" if is_valid else False, "id": id}, f, ensure_ascii=False)
+                        json.dump({"pun": pun.strip(), "definition": y.strip(), "answer": xz.replace(".","").strip(), "valid" : "" if is_valid else False, "id": ids[id_out]}, f, ensure_ascii=False)
                         f.write("\n")
                     
                 else:
-                    pun = completion.lower().split("### pun:")[1].strip() if "### pun:" in completion.lower() else ""
+                    pun = completion.lower().split("### pun:")[1].split("\n")[0].strip() if "### pun:" in completion.lower() else ""
                     answer_question = ""
                     is_valid = False
                     cot = ""
@@ -315,7 +326,7 @@ Example pun(s):
                         prefix_question = prefixes[id_out]
                         prefix_question = prefix_question.replace("what do you call an", "what do you call a")
                         prefix_question = prefix_question.replace("what do you call a", "").replace("### pun:", "").strip()
-                        answer_question = pun.split("?")[1].replace(".", "").strip()
+                        answer_question = pun.split("?")[1].replace(".", "").strip() if "?" in pun else ""
                         is_valid = answer_question.lower().startswith(prefix_question)
 
                     with open(output_dir_path + f'/puns-{model_name}.jsonl', 'a') as f:

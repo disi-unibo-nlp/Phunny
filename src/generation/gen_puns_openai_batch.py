@@ -18,7 +18,7 @@ from datasets import load_dataset
 
 @dataclass
 class ScriptArguments:
-    model_name: Optional[str] = field(default="gpt-4o-mini-2024-07-18", metadata={"help": "model's HF directory or local path"})
+    model_name: Optional[str] = field(default="o3-mini-2025-01-31", metadata={"help": "model's HF directory or local path"})
     input_data: Optional[str] = field(default="disi-unibo-nlp/Phunny", metadata={"help": "Input data file path."})
     split: Optional[str] = field(default="main", metadata={"help": "Split of the dataset to use during inference.", "choices": ["main", "contaminated", "few-shot"]})
     max_samples: Optional[int] = field(default=-1, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
@@ -114,8 +114,11 @@ if __name__ == "__main__":
     for n_shot in shots: 
         for k, subject in enumerate(data):
             n_shot = int(n_shot)
-            batch_request = {"custom_id": "", "method": "POST", "url": "/v1/chat/completions", "body": {"model": args.model_name, "messages": [{"role": "system", "content": "You are a helpful assistant."},], "temperature": args.temperature, "max_tokens": 4096}}
-            
+            if "o3" in args.model_name.lower():
+                batch_request = {"custom_id": "", "method": "POST", "url": "/v1/chat/completions", "body": {"model": args.model_name, "messages": [{"role": "system", "content": "You are a helpful assistant."},], "reasoning_effort": "high"}}
+            else:
+                batch_request = {"custom_id": "", "method": "POST", "url": "/v1/chat/completions", "body": {"model": args.model_name, "messages": [{"role": "system", "content": "You are a helpful assistant."},], "temperature": args.temperature, "max_tokens": 4096}}
+
             if n_shot == 0:
                 prompt = """Create an English pun using the format "What do you call a X that Y? XZ".
 

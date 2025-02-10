@@ -92,12 +92,12 @@ if __name__ == "__main__":
        
         if args.mode == "logical":
             #prompt = item['pun'] + "\n\nDid you get it? Possible answers:\n- Yes, because {your explanation}\n- No, because {your explanation}\n\nDon't add further informations."
-            prompt = item['pun'] + "\n\nDid you get it? Possible answers:\n- Yes, for exactly two reasons. First, ... Second, ...\n- No, because ...\n\nDon't add further informations."
+            prompt = item['pun'] + "\n\nDid you get it? Possible answers:\n- Yes, for exactly two reasons. First, ... Second, ...\n- No, because ...\n\nDon't add further information."
             
         else:
             new_subject = item['most_similar'] if args.illogical_selection=="most_similar" else item['least_similar']
             new_pun = f"What do you call a {new_subject} that {item['definition']}? {item['answer'][0]}"
-            prompt = f"{new_pun}\n\nDid you get it? Possible answers:\n- Yes, because {{your explanation}}\n- No, because {{your explanation}}\n\nDon't add further informations."
+            prompt = f"{new_pun}\n\nDid you get it? Possible answers:\n- Yes, because {{your explanation}}\n- No, because {{your explanation}}\n\nDon't add further information."
         
         logger.info(f"Selected prompt:\n{prompt}")
         

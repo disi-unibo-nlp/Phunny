@@ -28,7 +28,7 @@ from nltk.corpus import wordnet
 @dataclass
 class ScriptArguments:
     model_name: Optional[str] = field(default="gemini-1.5-flash", metadata={"help": "model's HF directory or local path"})
-    input_data: Optional[str] = field(default="out/generation/batch_api/2025-02-06_15-24-50/puns.jsonl", metadata={"help": "Input data file path."})
+    input_data: Optional[str] = field(default="out/generation/Phi-3.5-mini-instruct/direct/free/2025-02-09 01:11:23.747665/puns-Phi-3.5-mini-instruct.jsonl", metadata={"help": "Input data file path."})
     max_samples: Optional[int] = field(default=-1, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
     start_idx: Optional[int] = field(default=0, metadata={"help": "Index of first prompt to process."})
     top_p: Optional[float] = field(default=1.0, metadata={"help": "Top p sampling."})
@@ -142,6 +142,9 @@ if __name__ == "__main__":
     
     for k, item in enumerate(tqdm(data)): 
 
+        if not (item["pun"] and item["answer"]):
+            continue
+
         prompt = """Determine whether the given word's meaning is derived from the provided root word.
 
 Examples:
@@ -177,7 +180,7 @@ Explain briefly your decision and then answer with "yes" or "no" prefixed by "An
             continue
 
         answer = item['answer'].replace(".","").lower().strip()
-        predicate = item['pun'].split("that")[1].split("?")[0].strip()
+        predicate = item['pun'].split("that")[1].split("?")[0].strip() if "that" in item['pun'] else ""
         prefix = item['pun'].lower().split("that")[0].replace("what do you call a","").strip()
 
         if is_derivative(prefix, answer):
@@ -226,6 +229,8 @@ Explain briefly your decision and then answer with "yes" or "no" prefixed by "An
         data_to_convert = [json.loads(line) for line in f.readlines()]
     
     data_valid = [el for el in data_to_convert if el['valid']]
+    acc = round(len(data_valid) / len(data_to_convert) * 100, 1)
+    logger.info(f"Accuracy: {acc}")
     print("Accuracy:", round(len(data_valid) / len(data_to_convert) * 100, 1))
     pd.DataFrame(data_to_convert).to_excel(f'out/generation/evaluation/{MODEL_NAME}/{output_dir}/eval-{MODEL_NAME}.xlsx', index=False)
     

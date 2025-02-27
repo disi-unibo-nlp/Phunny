@@ -6,6 +6,8 @@ This task evaluates LLMs' ability to generate **Phunny-style** puns under two co
 
 - **Constrained:** The subject is **fixed**. Since multiple puns can be generated from the same subject and creativity varies across models, this task does not have predefined gold labels.
 
+# Experiments
+
 ## Prompts 
 
 ### Free Generation
@@ -56,4 +58,4 @@ What do you call a X='star' that Y? XZ.
 
 *Note: for both the generation mode a final sentence is appendend in order to guide the model for CoT or Direct inference.*
 
-# Run Experiments
+## Set Modality

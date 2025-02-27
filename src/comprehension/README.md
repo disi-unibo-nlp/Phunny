@@ -110,7 +110,7 @@ Below is an example Bash script to run evaluation with gemini-1.5-flash on compl
 ```bash
 #!/bin/bash
 
-python3 -m src.comprehension.run_vllm \
+python3 -m src.comprehension.eval_gemini \
     --judge_name "gemini-1.5-flash" \
     --model_name "gpt-4o-2024-08-06" \
     --input_data "out/gpt-4o-2024-08-06/illogical_least_similar/2025-02-10_15-47-55/comprehension.jsonl" \

@@ -26,6 +26,13 @@ The figure below provides a clear illustration of each task for a easier underst
 
 ---
 
+# Experiments  
+
+To reproduce the experiments, refer to the README inside **[`src/`](src/)**.  
+It contains scripts and detailed instructions for running experiments with LLMs using **vLLM** and closed APIs such as **OpenAI and Gemini**.  
+
+---
+
 # Results  
 
 This section summarizes the key findings from our experiments. For a detailed breakdown of each metric and task, please refer to our paper.  

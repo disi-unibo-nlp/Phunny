@@ -18,6 +18,26 @@ Other **open-source models** were run using **their default precision settings**
 - **OpenAI models** → Processed via the **OpenAI Batch API** to reduce costs.  
 - **Gemini models** → Accessed through the **Gemini API**.  
 
+# Few-shot Examples
+
+All our experiments for **Pun Generation** and **Resolution** tasks were conducted using **few-shot learning** to thoroughly test the true generalization capabilities of the models. Specifically, we always used **5 examples (5-shot)** during the experiments.
+
+However, we created a pool of **10 pun shot examples** used across our experiments. This pool was particularly beneficial for models like **Gemini models**, where we found it useful to **randomly select 5 examples** from the pool to introduce **diversity** in the output completions (especially beneficial for the **Free Generation** task).  
+
+If not specified otherwise, only the first 5 examples from the table below are considered.
+
+| Shot                                         |
+|----------------------------------------------|
+| What do you call a gene that works everywhere? Generalizable. |
+| What do you call a dog that is incontrovertibly true? Dogma. |
+| What do you call a pen that is very sorry? Penitence. |
+| What do you call a rat that is obsessed with stats? Ratio. |
+| What do you call a star that is served by a waiter? Starter. |
+| What do you call a fan that plays an instrument? Fanfare. |
+| What do you call a cat that is clear and obvious? Categorical. |
+| What do you call a port that is part of a whole? Portion. |
+| What do you call a bowl that throws balls? Bowler. |
+| What do you call a trip that multiplies by three? Triple. |
 
 ## Large Language Models  
 

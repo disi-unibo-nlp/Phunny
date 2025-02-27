@@ -21,7 +21,7 @@ Data used for this task can be found in **[`data/phunny_comprehension.jsonl`](da
 
 ## vLLM Inference
 
-Example bash script to run for Misleading comprehension and semantically similar swap ("most_similar"). Note: to use demntically dissimilar swap just set illogical_selection param to "least_similar". Set instead mode to "logical" and ignore the param illogical_selection for Coehrent comprension. 
+Example bash script to run for Misleading comprehension and semantically similar swap ("most_similar") bu using vLLM. Note: to use demntically dissimilar swap just set illogical_selection param to "least_similar". Set instead mode to "logical" and ignore the param illogical_selection for Coehrent comprension. 
 
 ```bash
 #!/bin/bash
@@ -45,12 +45,12 @@ python3 -m src.comprehension.run_vllm \
 ```
 
 ## OpenAI Batch Inference
-Example bash script to run for illogical comprehension and semantically similar swap ("most_similar") by using the OpenAI Batch API. Note: to use demntically dissimilar swap just set illogical_selection param to "least_similar". Set instead mode to "logical" and ignore the param illogical_selection for Coehrent comprension. 
+Example bash script to run for Misleading comprehension and semantically similar swap ("most_similar") by using the OpenAI Batch API. Note: to use demntically dissimilar swap just set illogical_selection param to "least_similar". Set instead mode to "logical" and ignore the param illogical_selection for Coehrent comprension. 
 
 ```bash
 #!/bin/bash
 
-python3 -m src.comprehension.run_vllm \
+python3 -m src.comprehension.run_openai_batch \
     --model_name "gpt-4o-mini-2024-07-18" \
     --input_data "data/Phunny_cohmprension.jsonl" \
     --max_samples -1 \
@@ -64,3 +64,20 @@ python3 -m src.comprehension.run_vllm \
 ```
 
 ## Gemini Inference
+
+Example bash script to run for Misleading comprehension and semantically similar swap ("most_similar") by using the Gemini API. Note: to use demntically dissimilar swap just set illogical_selection param to "least_similar". Set instead mode to "logical" and ignore the param illogical_selection for Coehrent comprension. 
+
+```bash
+#!/bin/bash
+
+python3 -m src.comprehension.run_gemini \
+    --model_name "gemini-2.0-flash-thinking-exp" \
+    --max_samples -1 \
+    --input_data "data/Phunny_cohmprension.jsonl" \
+    --start_idx 0 \
+    --top_p 1.0 \
+    --top_k 200 \
+    --temperature 0 \
+    --mode "logical" \
+    --illogical_selection "most_similar"
+```bash

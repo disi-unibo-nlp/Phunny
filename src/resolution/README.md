@@ -38,7 +38,7 @@ Below is an example Bash script to run inference for the **Resolution** task wit
 
 python3 -m src.comprehension.run_vllm \
     --model_name "microsoft/phi-4" \
-    --input_data "data/phunny.jsonl" \ # local file path or HF repo 
+    --input_data "data/Phunny.jsonl" \ # local file path or HF repo 
     --split "main" \ # only for HF repo, ignore for local data loading 
     --out_dir "./out" \
     --max_samples -1 \
@@ -63,7 +63,7 @@ Below is an example Bash script to run inference for the **Resolution** task wit
 
 python3 -m src.resolution.resolution_openai_batch \
     --model_name "gpt-4o-2024-08-06" \
-    --input_data "data/data_phunny.jsonl" \
+    --input_data "data/Phunny.jsonl" \
     --max_samples -1 \
     --start_idx 0 \
     --top_p 1.0 \
@@ -83,7 +83,7 @@ Below is an example Bash script to run inference for the **Resolution** task wit
 python3 -m src.resolution.resolution_gemini \
     --model_name "gemini-2.0-flash-thinking-exp" \
     --max_samples -1 \
-    --input_data "data/data_phunny.jsonl" \
+    --input_data "data/Phunny.jsonl" \
     --start_idx 0 \
     --top_p 1.0 \
     --temperature 0 \

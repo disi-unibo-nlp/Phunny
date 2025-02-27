@@ -15,7 +15,7 @@ To construct misleading puns, we modify each original pun's subject (**X**) in t
 
 We evaluate models on **1,050 puns**, consisting of **350 coherent** and **700 misleading** samples.  
 
-Data used for this task can be found in **[`data/phunny_comprehension.jsonl`](data/phunny_comprehension.jsonl)**.  
+Data used for this task can be found in **[`data/Phunny_comprehension.jsonl`](data/Phunny_comprehension.jsonl)**.  
 
 # Experiments
 

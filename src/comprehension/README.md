@@ -17,7 +17,20 @@ We evaluate models on **1,050 puns**, consisting of **350 coherent** and **700 m
 
 Data used for this task can be found in **[`data/phunny_comprehension.jsonl`](data/phunny_comprehension.jsonl)**.  
 
-# Run Experiments
+# Experiments
+
+## Prompt
+```
+{english_pun}
+
+Did you get it? Possible answers:
+- Yes, for exactly two reasons. First, ... Second, ...
+- No, because ...
+
+Don't add further information.
+```
+
+## Set Modality
 - For **Coherent Comprehension**, set `mode="logical"` and ignore the `illogical_selection` parameter.  
 - For **Coherent Comprehension**, set `mode="illogical"` and setup the `illogical_selection` parameter as follows:  
   - To use a **semantically similar swap**, set `illogical_selection="most_similar"`.  

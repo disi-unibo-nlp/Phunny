@@ -30,6 +30,13 @@ The figure below provides a clear illustration of each task for a easier underst
 
 This section summarizes the key findings from our experiments. For a detailed breakdown of each metric and task, please refer to our paper.  
 
+<p align="center">
+  <img src="images/res_comprehension.png" alt="Comprehension Results" width="300" height="300" style="margin: 10px;">
+  <img src="images/res_resolution.png" alt="Resolution Results" width="300" height="300" style="margin: 10px;">
+  <img src="images/res_generation.png" alt="Generation Results" width="300" height="300" style="margin: 10px;">
+</p>
+
+
 ## Comprehension  
 
 We evaluate comprehension using human assessments, reporting **Coherent Pun Accuracy (CPA)** and **Misleading Pun Accuracy (MPA)**, which measure accuracy on coherent and misleading pun sets, respectively.  
@@ -37,9 +44,6 @@ We evaluate comprehension using human assessments, reporting **Coherent Pun Accu
 - **MPA<sup>+</sup>**: Accuracy on semantically similar swaps.  
 - **MPA<sup>-</sup>**: Accuracy on semantically dissimilar swaps.  
 
-<p align="center">
-  <img src="images/res_comprehension.png" alt="Comprehension Results" width="40%">
-</p>
 
 ## Resolution  
 
@@ -49,19 +53,15 @@ We assess resolution performance using three key metrics:
 - **Valid Prefix Accuracy (VPA)** – Ensures the response starts with the subject of the pun.  
 - **Existing Word Accuracy (EWA)** – Verifies that the output is a valid word.  
 
-<p align="center">
-  <img src="images/res_resolution.png" alt="Resolution Results" width="40%">
-</p>
 
 ## Generation  
 
 For generation, we use **Accuracy (ACC)** as the primary metric across both **Constrained** and **Free** task variants. In the **Free** setting, we also measure **Creativity**, evaluated by:  
 
 - **C<sub>S</sub>** – Proportion of unique subjects generated.  
-- **C<sub>A</sub>** – Proportion of unique answers generated.  
+- **C<sub>A</sub>** – Proportion of unique answers generated.
 
-<p align="center">
-  <img src="images/res_generation.png" alt="Generation Results" width="40%">
-</p>
+
+
 
 

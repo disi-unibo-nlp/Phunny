@@ -31,9 +31,9 @@ The figure below provides a clear illustration of each task for a easier underst
 This section summarizes the key findings from our experiments. For a detailed breakdown of each metric and task, please refer to our paper.  
 
 <p align="center">
-  <img src="images/res_comprehension.png" alt="Comprehension Results" width="300" height="300" style="margin: 10px;">
-  <img src="images/res_resolution.png" alt="Resolution Results" width="300" height="300" style="margin: 10px;">
-  <img src="images/res_generation.png" alt="Generation Results" width="300" height="300" style="margin: 10px;">
+  <img src="images/res_comprehension.png" alt="Comprehension Results" width="200" height="200" style="margin: 10px;">
+  <img src="images/res_resolution.png" alt="Resolution Results" width="200" height="200" style="margin: 10px;">
+  <img src="images/res_generation.png" alt="Generation Results" width="200" height="200" style="margin: 10px;">
 </p>
 
 

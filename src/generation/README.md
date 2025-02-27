@@ -104,7 +104,7 @@ python3 -m src.generation.generation_openai_batch \
 ```
 
 ## Gemini Inference
-```
+```bash
 #!/bin/bash
 
 python3 -m src.generation.generation_gemini \

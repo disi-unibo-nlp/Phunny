@@ -26,7 +26,7 @@ from huggingface_hub import login
 @dataclass
 class ScriptArguments:
     model_name: Optional[str] = field(default="deepseek-chat", metadata={"help": "model's HF directory or local path"})
-    input_data: Optional[str] = field(default="data/candidate_dataset_comprehension_380.jsonl", metadata={"help": "Input data file path."})
+    input_data: Optional[str] = field(default="data/Phunny_comprehension.jsonl", metadata={"help": "Input data file path."})
     max_samples: Optional[int] = field(default=10, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
     start_idx: Optional[int] = field(default=0, metadata={"help": "Index of first prompt to process."})
     top_p: Optional[float] = field(default=1.0, metadata={"help": "Top p sampling."})

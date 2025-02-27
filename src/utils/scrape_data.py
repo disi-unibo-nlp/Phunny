@@ -13,7 +13,7 @@ from transformers import HfArgumentParser
 @dataclass
 class ScriptArguments:
     max_samples: Optional[int] = field(default=-1, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
-    input_data: Optional[str] = field(default="data/candidate_dataset_466.jsonl", metadata={"help": "Input data file path."})
+    input_data: Optional[str] = field(default="data/Phunny.jsonl", metadata={"help": "Input data file path."})
 
 if __name__ == "__main__":
 

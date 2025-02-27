@@ -32,7 +32,7 @@ from nltk.stem import WordNetLemmatizer
 class ScriptArguments:
     model_name: Optional[str] = field(default="gemini-2.0-flash-thinking-exp", metadata={"help": "model's HF directory or local path"})
     max_samples: Optional[int] = field(default=-1, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
-    input_data: Optional[str] = field(default="data/data_phunny.jsonl", metadata={"help": "Input data file path."})
+    input_data: Optional[str] = field(default="data/Phunny.jsonl", metadata={"help": "Input data file path."})
     start_idx: Optional[int] = field(default=0, metadata={"help": "Index of first prompt to process."})
     top_p: Optional[float] = field(default=1.0, metadata={"help": "Top p sampling."})
     top_k: Optional[float] = field(default=40, metadata={"help": "Top p sampling."})

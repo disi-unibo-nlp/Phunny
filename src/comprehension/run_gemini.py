@@ -26,7 +26,7 @@ from dataclasses import dataclass, field
 class ScriptArguments:
     model_name: Optional[str] = field(default="gemini-2.0-flash-thinking-exp", metadata={"help": "model's HF directory or local path"})
     max_samples: Optional[int] = field(default=15, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
-    input_data: Optional[str] = field(default="data/Phunny_cohmprension.jsonl", metadata={"help": "Input data file path."})
+    input_data: Optional[str] = field(default="data/Phunny_comprehension.jsonl", metadata={"help": "Input data file path."})
     start_idx: Optional[int] = field(default=0, metadata={"help": "Index of first prompt to process."})
     top_p: Optional[float] = field(default=1.0, metadata={"help": "Top p sampling."})
     top_k: Optional[float] = field(default=200, metadata={"help": "Top p sampling."})

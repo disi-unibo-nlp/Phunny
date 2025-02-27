@@ -19,15 +19,15 @@ from datasets import load_dataset
 
 @dataclass
 class ScriptArguments:
-    model_name: Optional[str] = field(default="gpt-4o-mini-2024-07-18", metadata={"help": "model's HF directory or local path"})
-    input_data: Optional[str] = field(default="data/Phunny_cohmprension.jsonl", metadata={"help": "Input data file path."})
+    model_name: Optional[str] = field(default="o3-mini-2025-01-31", metadata={"help": "model's HF directory or local path"})
+    input_data: Optional[str] = field(default="data/Phunny_comprehension.jsonl", metadata={"help": "Input data file path."})
     max_samples: Optional[int] = field(default=-1, metadata={"help": "Maximum number of data to process in train set. Default is -1 to process all data."})
     start_idx: Optional[int] = field(default=0, metadata={"help": "Index of first prompt to process."})
     top_p: Optional[float] = field(default=1.0, metadata={"help": "Top p sampling."})
     n_sampling: Optional[int] = field(default=1, metadata={"help": "Number of prompts to sample for each question"})
     temperature: Optional[float] = field(default=0.0, metadata={"help": "Sampling temperature parameter"})
     n_shots: Optional[str] = field(default="5", metadata={"help": "Number of shots to use for each prompts."})
-    mode: Optional[str] = field(default="illogical", metadata={"help": "Number of shots to use for each prompts."})
+    mode: Optional[str] = field(default="logical", metadata={"help": "Number of shots to use for each prompts."})
     illogical_selection: Optional[str] = field(default="most_similar", metadata={"help": "Number of shots to use for each prompts."})
 
 

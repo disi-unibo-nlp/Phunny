@@ -85,3 +85,24 @@ python3 -m src.comprehension.run_gemini \
     --mode "logical" \
     --illogical_selection "most_similar"
 ```
+
+# Evaluation
+The evaluation is coducted by employing Gemini-1.5-flash as judge. The prompt adopted is the following:
+```
+
+```
+
+```bash
+#!/bin/bash
+
+python3 -m src.comprehension.run_vllm \
+    --judge_name "gemini-1.5-flash" \
+    --model_name "gpt-4o-2024-08-06" \
+    --input_data "out/gpt-4o-2024-08-06/illogical_least_similar/2025-02-10_15-47-55/comprehension.jsonl" \
+    --max_samples -1 \
+    --start_idx 0 \
+    --top_p 1.0 \
+    --top_k 40 \
+    --n_sampling 12 \
+    --temperature 0
+```

@@ -1,7 +1,7 @@
 # Resolution
 
 This task evaluates whether LLMs can generate an appropriate punchline to resolve a given pun question.  
-We use the **350 pun questions** from [`data/phunny.jsonl`](data/phunny.jsonl), with their punchlines (answers) serving as gold labels.  
+We use the **350 pun questions** from [`data/Phunny.jsonl`](../../data/phunny.jsonl), with their punchlines (answers) serving as gold labels.  
 
 # Experiments
 

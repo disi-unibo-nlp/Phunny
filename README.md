@@ -47,9 +47,9 @@ It contains scripts and detailed instructions for running experiments with LLMs 
 This section summarizes the key findings from our experiments. For a detailed breakdown of each metric and task, please refer to our paper.  
 
 <p align="center">
-  <img src="images/res_comprehension.png" alt="Comprehension Results" style="width: 15vw; height: 15vw; min-width: 150px; min-height: 150px; max-width: 200px; max-height: 200px; margin: 10px;">
-  <img src="images/res_resolution.png" alt="Resolution Results" style="width: 15vw; height: 15vw; min-width: 100px; min-height: 100px; max-width: 150px; max-height: 150px; margin: 10px;">
-  <img src="images/res_generation.png" alt="Generation Results" style="width: 15vw; height: 15vw; min-width: 100px; min-height: 100px; max-width: 150px; max-height: 150px; margin: 10px;">
+  <img src="images/res_comprehension.png" alt="Comprehension Results" style="width: 18vw; height: 18vw; min-width: 150px; min-height: 150px; max-width: 200px; max-height: 200px; margin: 10px;">
+  <img src="images/res_resolution.png" alt="Resolution Results" style="width: 18vw; height: 18vw; min-width: 100px; min-height: 100px; max-width: 150px; max-height: 150px; margin: 10px;">
+  <img src="images/res_generation.png" alt="Generation Results" style="width: 18vw; height: 18vw; min-width: 100px; min-height: 100px; max-width: 150px; max-height: 150px; margin: 10px;">
 </p>
 
 *Note: OpenAI-o3-mini refers to the **high** reasoning mode.*

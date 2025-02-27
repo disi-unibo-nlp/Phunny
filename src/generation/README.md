@@ -58,4 +58,68 @@ What do you call a X='star' that Y? XZ.
 
 *Note: for both the generation mode a final sentence is appendend in order to guide the model for CoT or Direct inference.*
 
-## Set Modality
+## vLLM Inference
+
+```bash
+#!/bin/bash
+
+python3 -m src.generation.generation_vllm \
+    --model_name "microsoft/Phi-3.5-mini-instruct" \
+    --input_data "data/phunny.jsonl" \ # can be ignored for Free Generation mode
+    --split "main" \ # can be ignored for local loading
+    --out_dir "./out" \
+    --max_samples -1 \
+    --start_idx 0 \
+    --batch_size 4 \
+    --cache_dir None \
+    --max_model_len 1024 \
+    --max_new_tokens None \
+    --top_p 1.0 \
+    --n_out_sequences 1 \
+    --temperature 1.0 \
+    --n_gpus 1 \
+    --mode "direct" \ # possible values: 'direct' and 'cot'
+    --gen_type "free" \ # possible values: 'free' and 'driven'
+    --n_sampling 50 \
+    --n_shots 5
+```
+
+## OpenAI Batch Inference
+
+```bash
+#!/bin/bash
+
+python3 -m src.generation.generation_openai_batch \
+    --model_name "o3-mini-2025-01-31" \
+    --input_data "data/phunny.jsonl" \ # local file or HF repo
+    --split "main" \ # can be ignored for local loading
+    --max_samples -1 \
+    --start_idx 0 \
+    --top_p 1.0 \
+    --n_sampling 50 \
+    --temperature 1.0 \
+    --n_shots 5 \
+    --mode "cot" \ # possible values: 'direct' and 'cot'
+    --gen_type "driven" # possible values: 'free' and 'driven'
+```
+
+## Gemini Inference
+```
+#!/bin/bash
+
+python3 -m src.generation.generation_gemini \
+    --model_name "gemini-2.0-flash-thinking-exp" \
+    --input_data "data/phunny.jsonl" \
+    --max_samples -1 \
+    --start_idx 0 \
+    --top_p 1.0 \
+    --n_sampling 50 \
+    --temperature 1.0 \
+    --n_shots 5 \
+    --random_shots True \ # select random shots 
+    --mode "cot" \ # possible values: 'direct' and 'cot'
+    --gen_type "driven" # possible values: 'free' and 'driven'
+```
+
+
+

@@ -59,6 +59,7 @@ What do you call a X='star' that Y? XZ.
 *Note: for both the generation mode a final sentence is appendend in order to guide the model for CoT or Direct inference.*
 
 ## vLLM Inference
+Below is an example Bash script to run inference for the **Free Generation** task with a **Direct** prompting using vLLM.  
 
 ```bash
 #!/bin/bash
@@ -85,6 +86,7 @@ python3 -m src.generation.generation_vllm \
 ```
 
 ## OpenAI Batch Inference
+Below is an example Bash script to run inference for the **Driven Generation** task with a **CoT** prompting using the OpenAI Batch API.  
 
 ```bash
 #!/bin/bash
@@ -104,12 +106,14 @@ python3 -m src.generation.generation_openai_batch \
 ```
 
 ## Gemini Inference
+Below is an example Bash script to run inference for the **Free Generation** task with a **CoT** prompting using the Gemini API.  
+
 ```bash
 #!/bin/bash
 
 python3 -m src.generation.generation_gemini \
     --model_name "gemini-2.0-flash-thinking-exp" \
-    --input_data "data/phunny.jsonl" \
+    --input_data "data/phunny.jsonl" \ # local file or HF repo
     --max_samples -1 \
     --start_idx 0 \
     --top_p 1.0 \
@@ -118,8 +122,12 @@ python3 -m src.generation.generation_gemini \
     --n_shots 5 \
     --random_shots True \ # select random shots 
     --mode "cot" \ # possible values: 'direct' and 'cot'
-    --gen_type "driven" # possible values: 'free' and 'driven'
+    --gen_type "free" # possible values: 'free' and 'driven'
 ```
 
+**Note:** Gemini models tend to generate the same pun repeatedly, even at high temperatures.  
 
+- We found it useful to **randomly select 5 shots** from a pool of 10, though the impact was minimal.  
+- Increasing the **top_k** value to high levels **did not yield significant improvements**.  
+ 
 

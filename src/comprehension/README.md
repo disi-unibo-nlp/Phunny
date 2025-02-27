@@ -89,9 +89,24 @@ python3 -m src.comprehension.run_gemini \
 # Evaluation
 The evaluation is coducted by employing Gemini-1.5-flash as judge. The prompt adopted is the following:
 ```
+Determine whether the given explanations are equivalent. This means that the predicted answer should match both of the two reasons given by the gold answer.
 
+Gold explanation:
+There are two reasons:
+
+- First, '{answer}' starts with '{prefix}' or '{answer}' sounds like {prefix} or '{answer}' is a play of words with '{prefix}'.
+- Second, '{answer}' means '{definition}' or '{answer}' is highly associated to '{definition}'.
+
+Predicted explanation:
+{item['answer'].strip()}
+
+Question: 
+Are the two explanations equivalent?
+
+Explain briefly your decision and then answer with "yes" or "no" prefixed by "Answer:".
 ```
 
+Below is an example Bash script to run evaluation with gemini-1.5-flash on completions made by gpt-4o
 ```bash
 #!/bin/bash
 
@@ -102,7 +117,5 @@ python3 -m src.comprehension.run_vllm \
     --max_samples -1 \
     --start_idx 0 \
     --top_p 1.0 \
-    --top_k 40 \
-    --n_sampling 12 \
     --temperature 0
 ```

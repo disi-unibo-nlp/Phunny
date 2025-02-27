@@ -66,7 +66,7 @@ Below is an example Bash script to run inference for the **Free Generation** tas
 
 python3 -m src.generation.generation_vllm \
     --model_name "microsoft/Phi-3.5-mini-instruct" \
-    --input_data "data/phunny.jsonl" \ # can be ignored for Free Generation mode
+    --input_data "data/Phunny.jsonl" \ # can be ignored for Free Generation mode
     --split "main" \ # can be ignored for local loading
     --out_dir "./out" \
     --max_samples -1 \
@@ -93,7 +93,7 @@ Below is an example Bash script to run inference for the **Driven Generation** t
 
 python3 -m src.generation.generation_openai_batch \
     --model_name "o3-mini-2025-01-31" \
-    --input_data "data/phunny.jsonl" \ # local file or HF repo
+    --input_data "data/Phunny.jsonl" \ # local file or HF repo
     --split "main" \ # can be ignored for local loading
     --max_samples -1 \
     --start_idx 0 \
@@ -113,7 +113,7 @@ Below is an example Bash script to run inference for the **Free Generation** tas
 
 python3 -m src.generation.generation_gemini \
     --model_name "gemini-2.0-flash-thinking-exp" \
-    --input_data "data/phunny.jsonl" \ # local file or HF repo
+    --input_data "data/Phunny.jsonl" \ # local file or HF repo
     --max_samples -1 \
     --start_idx 0 \
     --top_p 1.0 \

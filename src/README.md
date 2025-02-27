@@ -18,7 +18,7 @@ Other **open-source models** were run using **their default precision settings**
 - **OpenAI models** → Processed via the **OpenAI Batch API** to reduce costs.  
 - **Gemini models** → Accessed through the **Gemini API**.  
 
-# Few-shot Examples
+## Few-shot Examples
 
 All our experiments for **Pun Generation** and **Resolution** tasks were conducted using **few-shot learning** to thoroughly test the true generalization capabilities of the models. Specifically, we always used **5 examples (5-shot)** during the experiments.
 

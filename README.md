@@ -7,7 +7,7 @@
   
   This repository provides the dataset and code associated with our paper: **_"What do you call a *dog* that is incontrovertibly true? *Dog*ma_: Testing LLM Generalization through Humor"**  
   
-  **Phunny** is a benchmark of 350 novel structured puns, created through a two-stage process: manual **pun design** for creativity and humor, followed by an automated **contamination check** using web searches and LLM-as-a-judge to remove existing content.
+  **Phunny** is a benchmark of 350 novel structured puns, created through a two-stage process: manual **pun design** for creativity and humor, followed by an automated **contamination check**.
 
 ---
 

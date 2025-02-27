@@ -18,10 +18,14 @@ We evaluate models on **1,050 puns**, consisting of **350 coherent** and **700 m
 Data used for this task can be found in **[`data/phunny_comprehension.jsonl`](data/phunny_comprehension.jsonl)**.  
 
 # Run Experiments
+- For **Coherent Comprehension**, set `mode="logical"` and ignore the `illogical_selection` parameter.  
+- For **Coherent Comprehension**, set `mode="illogical"` and setup the `illogical_selection` parameter as follows:  
+  - To use a **semantically similar swap**, set `illogical_selection="most_similar"`.  
+  - To use a **semantically dissimilar swap**, set `illogical_selection="least_similar"`.  
 
-## vLLM Inference
+## vLLM Inference  
 
-Example bash script to run for Misleading comprehension and semantically similar swap ("most_similar") bu using vLLM. Note: to use demntically dissimilar swap just set illogical_selection param to "least_similar". Set instead mode to "logical" and ignore the param illogical_selection for Coehrent comprension. 
+Below is an example Bash script to run inference for the **Misleading Comprehension** task with a **semantically similar swap** (`"most_similar"`) using vLLM.  
 
 ```bash
 #!/bin/bash
@@ -45,7 +49,7 @@ python3 -m src.comprehension.run_vllm \
 ```
 
 ## OpenAI Batch Inference
-Example bash script to run for Misleading comprehension and semantically similar swap ("most_similar") by using the OpenAI Batch API. Note: to use demntically dissimilar swap just set illogical_selection param to "least_similar". Set instead mode to "logical" and ignore the param illogical_selection for Coehrent comprension. 
+Below is an example Bash script to run inference for the **Misleading Comprehension** task with a **semantically similar swap** (`"most_similar"`) using the OpenAI Batch API. 
 
 ```bash
 #!/bin/bash
@@ -65,7 +69,7 @@ python3 -m src.comprehension.run_openai_batch \
 
 ## Gemini Inference
 
-Example bash script to run for Misleading comprehension and semantically similar swap ("most_similar") by using the Gemini API. Note: to use demntically dissimilar swap just set illogical_selection param to "least_similar". Set instead mode to "logical" and ignore the param illogical_selection for Coehrent comprension. 
+Below is an example Bash script to run inference for the **Misleading Comprehension** task with a **semantically similar swap** (`"most_similar"`) using the Gemini API.
 
 ```bash
 #!/bin/bash
@@ -80,4 +84,4 @@ python3 -m src.comprehension.run_gemini \
     --temperature 0 \
     --mode "logical" \
     --illogical_selection "most_similar"
-```bash
+```

@@ -25,6 +25,15 @@ The figure below provides a clear illustration of each task for a easier underst
 </p>
 
 ---
+# Data
+
+The dataset is available as a **Hugging Face dataset**. However, to maintain anonymity, we currently provide it as a **JSONL file**:
+
+- 📄 **[`data/phunny.jsonl`](data/phunny.jsonl)**
+- 📄 **[`data/phunny_comprehension.jsonl`](data/phunny_comprehension.jsonl)**: This variant is intended exclusively for the comprehension task. It includes two additional columns, representing the most similar and least similar terms to the original prefix.
+
+
+---
 
 # Experiments  
 

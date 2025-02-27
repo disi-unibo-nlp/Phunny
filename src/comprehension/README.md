@@ -16,3 +16,30 @@ To construct misleading puns, we modify each original pun's subject (**X**) in t
 We evaluate models on **1,050 puns**, consisting of **350 coherent** and **700 misleading** samples.  
 
 Data used for this task can be found in **[`data/phunny_comprehension.jsonl`](data/phunny_comprehension.jsonl)**.  
+
+# Run Experiments
+
+## vLLM Inference
+
+Example bash script to run for illogical comprehension and semantically similar swap ("most_similar"). Note: to use demntically dissimilar swap just set illogical_selection param to "least_similar".
+
+```bash
+#!/bin/bash
+
+python3 -m src.comprehension.run_vllm \
+    --model_name "meta-llama/Llama-3.1-8B-Instruct" \
+    --input_data "data/Phunny_comprehension.jsonl" \
+    --out_dir "./out" \
+    --max_samples -1 \
+    --start_idx 0 \
+    --batch_size 8 \
+    --cache_dir None \
+    --max_model_len 1024 \
+    --max_new_tokens None \
+    --top_p 1.0 \
+    --n_out_sequences 1 \
+    --temperature 0.0 \
+    --mode "illogical" \
+    --illogical_selection "most_similar" \
+    --n_gpus 1
+```

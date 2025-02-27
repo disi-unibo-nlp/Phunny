@@ -56,7 +56,7 @@ python3 -m src.comprehension.run_vllm \
 
 ## OpenAI Batch Inference
 Below is an example Bash script to run inference for the **Resolution** task with **CoT reasoning** and Greedy decoding, using OpenAI Batch API.  
-Direct Inference is currenlty not supported with OpenAI models. 
+*Note: Direct Inference is currenlty not supported with OpenAI models through Batch API.* 
 
 ```bash
 #!/bin/bash
@@ -76,7 +76,6 @@ python3 -m src.resolution.resolution_openai_batch \
 
 ## Gemini Inference
 Below is an example Bash script to run inference for the **Resolution** task with **CoT reasoning** and Greedy decoding, using Gemini API.  
-Direct Inference is currenlty not supported with Gemini models. 
 
 ```bash
 #!/bin/bash

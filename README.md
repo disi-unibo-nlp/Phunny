@@ -4,3 +4,10 @@ Welcome to **Phunny**, a humor-based question-answering (QA) benchmark designed 
 
 This repository provides the dataset and code associated with our paper:  
 **_"What do you call a *dog* that is incontrovertibly true? *Dog*ma_: Testing LLM Generalization through Humor"**  
+
+## Task Formulation
+
+We introduce three progressively challenging tasks to evaluate LLMs' ability to understand and generate our specific types of puns.
+- **Pun Comprehension**: To assess if LLMs truly understand puns by distinguishing coherent ones from nonsensical counterparts.
+- **Pun Resolution**: To probes if LLMs can generate an appropriate punchline.
+- **Pun Generation**: This task assesses LLMs' ability to generate Phunny-style puns under two conditions: *Free* and *Constrained*.

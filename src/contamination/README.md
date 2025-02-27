@@ -4,7 +4,7 @@ To ensure the originality of puns in **Phunny** and minimize overlap with LLM pr
 
 ### Methodology  
 1. **Web Search**: For each pun, we used the **DuckDuckGo API** to retrieve the **top 10 search results**.  
-2. **Verification**: We employed **Gemini-1.5-Flash** to check if the pun appeared in the retrieved documents.  
+2. **Verification**: We employed **Gemini-1.5-Flash** to check if the pun can be reconstructed from the retrieved documents.
 
 ### Implementation  
 - DuckDuckGo API usage: [`src/utils/scrape_data.py`](src/utils/scrape_data.py)  
@@ -36,7 +36,7 @@ Web Page Content: {content}
 
 ## Gemini Inference
 
-Below a Bash script to use Gemini as a judge through the Gemini API. 
+Below a Bash script to use Gemini-1.5-Flash as a judge through the Gemini API. 
 
 ```bash
 #!/bin/bash

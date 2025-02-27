@@ -7,9 +7,9 @@ To ensure the originality of puns in **Phunny** and minimize overlap with LLM pr
 2. **Verification**: We employed **Gemini-1.5-Flash** to check if the pun can be reconstructed from the retrieved documents.
 
 ### Implementation  
-- DuckDuckGo API usage: [`src/utils/scrape_data.py`](src/utils/scrape_data.py)  
-- Parsing scraped outputs: [`src/utils/parse_scraping.py`](src/utils/parse_scraping.py)  
-- Gemini verification: [`src/contamination/contamination_gemini.py`](src/contamination/contamination_gemini.py)  
+- DuckDuckGo API usage: [`src/utils/scrape_data.py`](../utils/scrape_data.py)  
+- Parsing scraped outputs: [`src/utils/parse_scraping.py`](../utils/parse_scraping.py)  
+- Gemini verification: [`src/contamination/contamination_gemini.py`](../contamination/contamination_gemini.py)  
 ---
 
 # Experiments

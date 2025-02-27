@@ -21,7 +21,7 @@ Data used for this task can be found in **[`data/phunny_comprehension.jsonl`](da
 
 ## vLLM Inference
 
-Example bash script to run for illogical comprehension and semantically similar swap ("most_similar"). Note: to use demntically dissimilar swap just set illogical_selection param to "least_similar".
+Example bash script to run for Misleading comprehension and semantically similar swap ("most_similar"). Note: to use demntically dissimilar swap just set illogical_selection param to "least_similar". Set instead mode to "logical" and ignore the param illogical_selection for Coehrent comprension. 
 
 ```bash
 #!/bin/bash
@@ -43,3 +43,24 @@ python3 -m src.comprehension.run_vllm \
     --illogical_selection "most_similar" \
     --n_gpus 1
 ```
+
+## OpenAI Batch Inference
+Example bash script to run for illogical comprehension and semantically similar swap ("most_similar") by using the OpenAI Batch API. Note: to use demntically dissimilar swap just set illogical_selection param to "least_similar". Set instead mode to "logical" and ignore the param illogical_selection for Coehrent comprension. 
+
+```bash
+#!/bin/bash
+
+python3 -m src.comprehension.run_vllm \
+    --model_name "gpt-4o-mini-2024-07-18" \
+    --input_data "data/Phunny_cohmprension.jsonl" \
+    --max_samples -1 \
+    --start_idx 0 \
+    --top_p 1.0 \
+    --n_sampling 1 \
+    --temperature 0.0 \
+    --n_shots "5" \
+    --mode "illogical" \
+    --illogical_selection "most_similar"
+```
+
+## Gemini Inference

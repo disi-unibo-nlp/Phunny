@@ -11,7 +11,7 @@
 
 ---
 
-## Task Formulation
+# Task Formulation
 
 We introduce three progressively challenging tasks to evaluate LLMs' ability to understand and generate our specific types of puns.
 - **Pun Comprehension**: To assess if LLMs truly understand puns by distinguishing coherent ones from nonsensical counterparts.
@@ -23,3 +23,45 @@ The figure below provides a clear illustration of each task for a easier underst
 <p align="center">
   <img src="images/tasks.png" alt="Tasks Overview" width="70%">
 </p>
+
+---
+
+# Results  
+
+This section summarizes the key findings from our experiments. For a detailed breakdown of each metric and task, please refer to our paper.  
+
+## Comprehension  
+
+We evaluate comprehension using human assessments, reporting **Coherent Pun Accuracy (CPA)** and **Misleading Pun Accuracy (MPA)**, which measure accuracy on coherent and misleading pun sets, respectively.  
+
+- **MPA<sup>+</sup>**: Accuracy on semantically similar swaps.  
+- **MPA<sup>-</sup>**: Accuracy on semantically dissimilar swaps.  
+
+<p align="center">
+  <img src="images/res_comprehension.png" alt="Comprehension Results" width="40%">
+</p>
+
+## Resolution  
+
+We assess resolution performance using three key metrics:  
+
+- **Accuracy (ACC)** – Measures whether the model correctly resolves the pun.  
+- **Valid Prefix Accuracy (VPA)** – Ensures the response starts with the subject of the pun.  
+- **Existing Word Accuracy (EWA)** – Verifies that the output is a valid word.  
+
+<p align="center">
+  <img src="images/res_resolution.png" alt="Resolution Results" width="40%">
+</p>
+
+## Generation  
+
+For generation, we use **Accuracy (ACC)** as the primary metric across both **Constrained** and **Free** task variants. In the **Free** setting, we also measure **Creativity**, evaluated by:  
+
+- **C<sub>S</sub>** – Proportion of unique subjects generated.  
+- **C<sub>A</sub>** – Proportion of unique answers generated.  
+
+<p align="center">
+  <img src="images/res_generation.png" alt="Generation Results" width="40%">
+</p>
+
+

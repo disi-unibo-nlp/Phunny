@@ -1,7 +1,7 @@
 # Phunny: A Humor-Based QA Benchmark for Evaluating LLM Generalization  
 
 <p align="center">
-  <img src="images/phunny.png" alt="Phunny" width="55%" align="right">
+  <img src="images/phunny.png" alt="Phunny" width="40%" align="right">
   
   Welcome to **Phunny**, a humor-based question-answering (QA) benchmark designed to test the reasoning and generalization abilities of large language models (LLMs). 
   

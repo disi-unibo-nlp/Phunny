@@ -1,5 +1,5 @@
-flash_attn==2.7.4.post1
 vllm==0.7.1
+flash_attn==2.7.4.post1
 openai
 google-generativeai
 google-genai

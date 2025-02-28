@@ -2,6 +2,14 @@
 
 We conduct a series of experiments to evaluate model performance on **Phunny**, assessing both **LLMs** and **reasoning-focused models**.  
 
+## Requirements  
+
+Before starting, ensure that all required dependencies are installed:  
+
+```bash
+pip install -r requirements.txt
+```
+
 ## Repository Structure
 For each task, we provide a detailed **README** file in the corresponding folder to describe how to reproduce our experiments:
 

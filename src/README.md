@@ -20,7 +20,6 @@ pip install -r requirements.txt
    HF_TOKEN=<your_token>
    OPENAI_KEY=<your_key>
    GEMINI_API_KEY=<your_key>
-   DEEPSEEK_API_KEY=<your_key>
    ```
 
 ## Repository Structure

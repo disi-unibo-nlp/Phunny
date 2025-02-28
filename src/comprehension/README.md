@@ -15,7 +15,7 @@ To construct misleading puns, we modify each original pun's subject (**X**) in t
 
 We evaluate models on **1,050 puns**, consisting of **350 coherent** and **700 misleading** samples.  
 
-Data used for this task can be found in **[`data/phunny_comprehension.jsonl`](data/phunny_comprehension.jsonl)**.  
+Data used for this task can be found in **[`data/Phunny_comprehension.jsonl`](../../data/Phunny_comprehension.jsonl)**.  
 
 # Experiments
 
@@ -69,7 +69,7 @@ Below is an example Bash script to run inference for the **Misleading Comprehens
 
 python3 -m src.comprehension.run_openai_batch \
     --model_name "gpt-4o-mini-2024-07-18" \
-    --input_data "data/Phunny_cohmprension.jsonl" \
+    --input_data "data/Phunny_comprehension.jsonl" \
     --max_samples -1 \
     --start_idx 0 \
     --top_p 1.0 \
@@ -90,7 +90,7 @@ Below is an example Bash script to run inference for the **Misleading Comprehens
 python3 -m src.comprehension.run_gemini \
     --model_name "gemini-2.0-flash-thinking-exp" \
     --max_samples -1 \
-    --input_data "data/Phunny_cohmprension.jsonl" \
+    --input_data "data/Phunny_comprehension.jsonl" \
     --start_idx 0 \
     --top_p 1.0 \
     --top_k 200 \

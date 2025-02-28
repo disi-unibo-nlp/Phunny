@@ -8,7 +8,7 @@ For each task, we provide a detailed **README** file in the corresponding folder
 * **[`comprehension/`](comprehension/)**: Contains code and resources related to pun comprehension tasks.
 * **[`contamination/`](contamination/)**:  Handles experiments and analyses related to data contamination.
 * **[`generation/`](generation/)**:  Contains code and resources related to pun generation tasks.
-* **[`resolution/`](`resolution/)**:  Contains code and resources related to pun resolution tasks.
+* **[`resolution/`](resolution/)**:  Contains code and resources related to pun resolution tasks.
 * **[`utils/`](utils/)**:  A collection of utility functions and scripts, including support for results parsing of OpenAI Batch API and contamination web scraping.
 
 ## Environmental Setup  

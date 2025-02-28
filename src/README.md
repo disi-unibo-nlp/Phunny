@@ -2,13 +2,26 @@
 
 We conduct a series of experiments to evaluate model performance on **Phunny**, assessing both **LLMs** and **reasoning-focused models**.  
 
-## Requirements  
+## Before Starting
 
-Before starting, ensure that all required dependencies are installed:  
+**Requirements**
+
+Ensure that all required dependencies are installed:  
 
 ```bash
 pip install -r requirements.txt
 ```
+
+**Environment Variables**
+  * Create a `.env` file in the root directory of the project.
+  * Add the following API keys, replacing `<your_key>` and `<your_token>` with your actual credentials:
+
+  ```ini
+   HF_TOKEN=<your_token>
+   OPENAI_KEY=<your_key>
+   GEMINI_API_KEY=<your_key>
+   DEEPSEEK_API_KEY=<your_key>
+   ```
 
 ## Repository Structure
 For each task, we provide a detailed **README** file in the corresponding folder to describe how to reproduce our experiments:

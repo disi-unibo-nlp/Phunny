@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Phunny: Testing LLM Generalization through Humor">
+  <meta name="keywords" content="MathVista, Math Vista">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phunny: Testing LLM Generalization through Humor</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="stylesheet" href="./static/css/leaderboard.css">
+
+  <script type="text/javascript" src="static/js/sort-table.js" defer></script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/explorer-index.js"></script>
+  <script src="./static/js/question_card.js"></script>
+
+  <script src="./static/js/leaderboard_testmini.js"></script>  
+  <script src="./data/results/output_folders.js" defer></script>
+  <script src="./data/results/model_scores.js" defer></script>
+
+  <script src="./visualizer/data/data_public.js" defer></script>
+</head>
+<body>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title is-bold">
+            <span class="mathvista" style="vertical-align: middle">Phunny</span>
+            </h1>
+          <h2 class="subtitle is-3 publication-subtitle">
+            Testing LLM Generalization through Humor
+          </h2>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://disi-unibo-nlp.github.io/people/">Alessio Cocchieri</a>,
+            </span>
+            <span class="author-block">
+              <a href="https://disi-unibo-nlp.github.io/people/">Luca Ragazzi</a>,
+            </span>
+            <span class="author-block">
+              <a href="https://disi-unibo-nlp.github.io/people/">Paolo Italiani</a>,
+            </span>
+            <span class="author-block">
+              <a href="https://disi-unibo-nlp.github.io/people/">Giuseppe Tagliavini</a>,
+            </span>
+            <span class="author-block">
+              <a href="https://disi-unibo-nlp.github.io/people/">Gianluca Moro</a>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">University of Bologna, Italy</span><br>
+            <span class="paper-block"><b style="color:#f41c1c">ACL 2025 Main Track</b></span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <!-- @PAN TODO: change links -->
+                <a href=""
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/disi-unibo-nlp/Phunny"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+              <!-- Dataset Link. -->
+              <span class="link-block">
+                <a href="https://huggingface.co/datasets/disi-unibo-nlp/Phunny"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <!-- <i class="far fa-images"></i> -->
+                      <p style="font-size:18px">🤗</p>
+                      <!-- 🔗 -->
+                  </span>
+                  <span>Dataset</span>
+                </a>
+              </span>
+              <!-- Leaderboard Link. -->
+              <span class="link-block">
+                <a href="https://disi-unibo-nlp.github.io/Phunny/#leaderboard"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <p style="font-size:18px">🏆</p>
+                  </span>
+                  <span>Leaderboard</span>
+                </a>
+              </span>
+              <!-- Twitter Link. -->
+              <span class="link-block">
+                <a href="https://disi-unibo-nlp.github.io"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <!-- <i class="far fa-images"></i> -->
+                      <!-- 💻🔗 -->
+                      <p style="font-size:18px">🌐</p>
+                  </span>
+                  <span>Research Team</span>
+                </a>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container" style="margin-top: -150px; margin-bottom: -100px;">
+    <div class="columns is-centered m-6">
+      <div class="column is-full has-text-centered content">
+        <div id="results-carousel" class="carousel results-carousel">
+          <div class="box m-5">
+            <div class="content has-text-centered">
+              <img src="images/overall.png" alt="overall" width="84%"/>
+              <p> <b>Illustration of the tasks in Phunny.</b> (1) <i>Comprehension</i> evaluates the ability to interpret coherent and misleading puns; (2) <i>Completion</i> involves generating a valid punchline; and (3) <i>Generation</i> asks creating new puns following specific guidelines. Correct and incorrect outputs highlight reasoning capabilities and common errors.
+              </p>
+            </div>
+          </div>
+          <div class="box m-5">
+            <div class="content has-text-centered">
+              <img src="images/overview.png" alt="overall2" width="40%"/>
+              <p> The pun-based reasoning framework behind our Phunny dataset, designed to assess linguistic generalization through humor in a human-intuitive format.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
+
+
+<section class="section">
+  <div class="container" style="margin-bottom: 2vh;">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Introduction</h2>
+        <div class="content has-text-justified">
+          <p>
+          Humor, requiring creativity and contextual understanding, is a hallmark of human intelligence, showcasing adaptability across linguistic scenarios. While recent advances in <b>large language models (LLMs)</b> demonstrate strong reasoning on various benchmarks, it remains unclear whether they truly adapt to new tasks like humans (i.e., <b>generalize</b>) or merely replicate memorized content.
+          </p>
+          <p>
+            To explore this, we introduce <b>Phunny</b>, a new humor-based question-answering benchmark designed to assess LLMs' reasoning through carefully crafted puns. Our dataset is manually curated to ensure novelty and minimize data contamination, providing a robust evaluation of LLMs' linguistic comprehension.
+          </p>
+          <p>
+            Experiments on pun comprehension, resolution, and generation reveal that most <b>LLMs struggle with generalization</b>, even on simple tasks, consistently underperforming the human baseline. Additionally, our detailed error analysis provides valuable insights to guide future research.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+</div>
+</section>
+
+
+<!-- LEADERBOARD SECTION -->
+<section class="hero is-light is-small" id="leaderboard_test">
+  <div class="hero-body has-text-centered">
+  <h1 class="title is-1 mathvista">
+    <span class="mathvista" style="vertical-align: middle">Leaderboard on Phunny</span>
+  </h1>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    
+    <div class="columns is-centered">
+      <div class="column is-full has-text-centered content">
+
+        <h2 class="title is-3">Pun Comprehension</h2>
+        <div class="content">
+          <b>CPA (Coherent Pun Accuracy):</b> Correctly recognizing true puns.
+          <br>
+          <b>MPA (Misleading Pun Accuracy):</b> Correctly recognizing false puns.
+          <br>
+          (MPA<sup>−</sup> and MPA<sup>+</sup> stands for whether the original pun's subject has been substituted with a dissimilar or similar item).
+        
+          <table class="js-sort-table" id="results">
+            <tr>
+            <td class="js-sort-number"><strong>#</strong></td>
+            <td class="js-sort-number"><strong>Model</strong></td>
+            <td class="js-sort-number"><strong>CPA</strong></td>
+            <td class="js-sort-number"><strong>MPA<sup>−</sup></strong></td>
+            <td class="js-sort-number"><strong>MPA<sup>+</sup></strong></td>
+            <td class="js-sort-number"><strong>MPA</strong></td>
+            </tr>
+        
+            <tr>
+            <td>1</td>
+            <td>o3-mini ⭐ 🧠</td>
+            <td>78.3</td>
+            <td>6.0</td>
+            <td>3.4</td>
+            <td>4.7</td>
+            </tr>
+            <tr>
+            <td>2</td>
+            <td>Gemini-2.0-Flash-Think ⭐ 🧠</td>
+            <td>71.1</td>
+            <td>6.9</td>
+            <td>24.6</td>
+            <td>15.8</td>
+            </tr>
+            <tr>
+                <td>3</td>
+            <td>LLaMA-3.3 <span style="color:gray;">(70B)</span></td>
+            <td>70.0</td>
+            <td>29.4</td>
+            <td>29.1</td>
+            <td>29.3</td>
+            </tr>
+            <tr>
+                <td>4</td>
+            <td>GPT-4o ⭐</td>
+            <td>64.9</td>
+            <td>14.9</td>
+            <td>17.4</td>
+            <td>16.2</td>
+            </tr>
+            <tr>
+                <td>5</td>
+            <td>Phi-4 <span style="color:gray;">(14B)</span></td>
+            <td>64.6</td>
+            <td>9.4</td>
+            <td>13.7</td>
+            <td>11.6</td>
+            </tr>
+            <tr>
+                <td>6</td>
+            <td>Gemini-2.0-Flash ⭐</td>
+            <td>44.6</td>
+            <td>44.9</td>
+            <td>35.7</td>
+            <td>40.3</td>
+            </tr>
+            <tr>
+                <td>7</td>
+            <td>GPT-4o-mini ⭐</td>
+            <td>36.3</td>
+            <td>10.9</td>
+            <td>11.7</td>
+            <td>23.6</td>
+            </tr>
+            <tr>
+                <td>8</td>
+            <td>LLaMA-3.1 <span style="color:gray;">(8B)</span></td>
+            <td>29.7</td>
+            <td>0.0</td>
+            <td>0.3</td>
+            <td>0.2</td>
+            </tr>
+            <tr>
+                <td>9</td>
+            <td>Phi-3.5 <span style="color:gray;">(3B)</span></td>
+            <td>14.9</td>
+            <td>48.3</td>
+            <td>47.1</td>
+            <td>47.7</td>
+            </tr>
+            <tr style="font-weight: bold;">
+                <td>10</td>
+            <td>Humans 👤</td>
+            <td>87.9</td>
+            <td>87.3</td>
+            <td>94.4</td>
+            <td>90.9</td>
+            </tr>
+        </table>
+        <p style="font-size: 14px;">
+        <strong>Note:</strong> ⭐ Closed-source models. 🧠 Reasoning-focused models.
+        </p>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container">
+    
+    <div class="columns is-centered">
+      <div class="column is-full has-text-centered content">
+
+        <h2 class="title is-3">Pun Resolution</h2>
+        <div class="content">
+        <b>ACC (Accuracy):</b> Correctly resolving the pun.
+        <br>
+        <b>VPA (Valid Prefix Accuracy):</b> The response correctly starts with the question's subject.
+        <br>
+        <b>EWA (Existing Word Accuracy):</b> The answer is a real existing word.
+
+  <table class="js-sort-table" id="results">
+      <tr>
+        <td class="js-sort-number"><strong>#</strong></td>
+        <td class="js-sort-number"><strong>Model</strong></td>
+        <td class="js-sort-number"><strong>ACC</strong></td>
+        <td class="js-sort-number"><strong>VPA</strong></td>
+        <td class="js-sort-number"><strong>EWA</strong></td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>o3-mini ⭐ 🧠</td>
+        <td>93.9</td>
+        <td>98.0</td>
+        <td>99.1</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>GPT-4o ⭐</td>
+        <td>79.9</td>
+        <td>84.6</td>
+        <td>96.2</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Gemini-2.0-Flash-Think ⭐ 🧠</td>
+        <td>70.6</td>
+        <td>80.2</td>
+        <td>88.1</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Gemini-2.0-Flash ⭐</td>
+        <td>69.5</td>
+        <td>75.9</td>
+        <td>87.8</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>LLaMA-3.3 <span style="color:gray;">(70B)</span></td>
+        <td>67.3</td>
+        <td>77.4</td>
+        <td>83.4</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>GPT-4o-mini ⭐</td>
+        <td>64.5</td>
+        <td>73.0</td>
+        <td>89.5</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Phi-4 <span style="color:gray;">(14B)</span></td>
+        <td>53.9</td>
+        <td>69.3</td>
+        <td>80.5</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>LLaMA-3.1 <span style="color:gray;">(8B)</span></td>
+        <td>27.9</td>
+        <td>31.7</td>
+        <td>96.8</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Phi-3.5 <span style="color:gray;">(3B)</span></td>
+        <td>22.4</td>
+        <td>27.3</td>
+        <td>78.5</td>
+      </tr>
+      <td>10</td>
+      <tr style="font-weight: bold;">
+        <td>Humans 👤</td>
+        <td>85.7</td>
+        <td>95.1</td>
+        <td>100.0</td>
+      </tr>
+  </table>
+
+  <p style="font-size: 14px;">
+    <strong>Note:</strong> ⭐ Closed-source models. 🧠 Reasoning-focused models.
+  </p>
+</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    
+    <div class="columns is-centered">
+      <div class="column is-full has-text-centered content">
+
+        <h2 class="title is-3">Pun Generation</h2>
+<div class="content">
+  <b>Constrained ACC:</b> Accuracy in the <i>constrained</i> pun generation task (where both meanings must be explicitly used).
+  <br>
+  <b>Free ACC:</b> Accuracy in the <i>free-form</i> pun generation task (open-ended).
+  <br>
+  <b>C<sub>S</sub>:</b> Semantic correctness of the pun meaning.
+  <br>
+  <b>C<sub>A</sub>:</b> Acceptability of the generated pun as a natural sentence.
+
+  <table class="js-sort-table" id="results">
+    <thead>
+      <tr>
+        <td class="js-sort-number"><strong>#</strong></td>
+        <td class="js-sort-number"><strong>Model</strong></th>
+        <td class="js-sort-number"><strong>Constr. ACC</strong></th>
+        <td class="js-sort-number"><strong>Free ACC</strong></th>
+        <td class="js-sort-number"><strong>Free C<sub>S</sub></strong></th>
+        <td class="js-sort-number"><strong>Free C<sub>A</sub></strong></th>
+      </tr>
+    </thead>
+      <tr>
+        <td>1</td>
+        <td>o3-mini ⭐ 🧠</td>
+        <td>93.5</td>
+        <td>100.0</td>
+        <td>38.0</td>
+        <td>52.0</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>GPT-4o ⭐</td>
+        <td>85.3</td>
+        <td>46.0</td>
+        <td>60.0</td>
+        <td>88.0</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Gemini-2.0-Flash ⭐</td>
+        <td>80.1</td>
+        <td>40.0</td>
+        <td>48.0</td>
+        <td>78.0</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Gemini-2.0-Flash-Think ⭐ 🧠</td>
+        <td>66.7</td>
+        <td>36.0</td>
+        <td>58.0</td>
+        <td>82.0</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>LLaMA-3.3 <span style="color:gray;">(70B)</span></td>
+        <td>25.5</td>
+        <td>15.0</td>
+        <td>15.0</td>
+        <td>57.5</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>GPT-4o-mini ⭐</td>
+        <td>41.7</td>
+        <td>24.0</td>
+        <td>36.0</td>
+        <td>84.0</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Phi-4 <span style="color:gray;">(14B)</span></td>
+        <td>15.4</td>
+        <td>6.0</td>
+        <td>34.0</td>
+        <td>76.0</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>LLaMA-3.1 <span style="color:gray;">(8B)</span></td>
+        <td>13.1</td>
+        <td>20.5</td>
+        <td>59.0</td>
+        <td>89.7</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Phi-3.5 <span style="color:gray;">(3B)</span></td>
+        <td>4.7</td>
+        <td>95.4</td>
+        <td>2.3</td>
+        <td>7.0</td>
+      </tr>
+      <tr style="font-weight: bold;">
+        <td>10</td>
+        <td>Humans 👤</td>
+        <td>88.7</td>
+        <td>92.8</td>
+        <td>82.3</td>
+        <td>95.2</td>
+      </tr>
+  </table>
+
+  <p style="font-size: 14px;">
+    <strong>Note:</strong> ⭐ Closed-source models. 🧠 Reasoning-focused models.
+  </p>
+</div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+<!-- DATASET SECTION -->
+<section class="hero is-light is-small">
+  <div class="hero-body has-text-centered">
+  <h1 class="title is-1 mathvista">
+    <span class="mathvista" style="vertical-align: middle">Phunny Dataset</span>
+  </h1>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered has-text-centered">
+      <!-- <div class="column is-full-width has-text-centered"> -->
+        <div class="column is-four-fifths">
+        <h2 class="title is-3">Overview</h2>
+        <div class="content has-text-justified">
+          <p>
+            <span class="mathvista">Phunny</span> is a meticulously curated benchmark dataset of 350 hand-crafted structured puns.
+            It consists of a <b>novel type of pun</b>, designed to evaluate the generalization capabilities of models in a QA task.
+          </p>
+          <p>
+            You can download the dataset on <a href="https://huggingface.co/datasets/disi-unibo-nlp/Phunny" target="_blank">Hugging Face Dataset</a>.
+          </p>
+
+        </div>
+      </div>
+    </div>
+    <div class="column is-full has-text-centered content">
+    <!-- <p>One example for each reasoning skill required in <span class="mathvista">MathVista</span></p> -->
+    <div id="results-carousel" class="carousel results-carousel">
+        <div class="box m-5">
+        <div class="content has-text-centered">
+            <img src="images/pie-chart.png" alt="grade-lv" width="50%"/>
+            <p>Phunny's data statistics distribution.</p>
+        </div>
+        </div>
+        <div class="box m-5">
+        <div class="content has-text-centered">
+            <img src="images/distribution.png" alt="contexts" width="50%"/>
+            <p>Top-15 most frequent subjects in Phunny.</p>
+        </div>
+        </div>
+    </div>
+</div>
+  </div>
+</section>
+
+
+
+<!-- ERROR SECTION -->
+<section class="hero is-light is-small">
+  <div class="hero-body has-text-centered">
+  <h1 class="title is-1 mathvista">
+    <span class="mathvista" style="vertical-align: middle">Error Analysis</span>
+  </h1>
+  </div>
+</section>
+
+
+
+<section class="section">
+  <div class="container">
+    <div class="column is-full has-text-centered content">
+    <!-- <p>One example for each reasoning skill required in <span class="mathvista">MathVista</span></p> -->
+    <div id="results-carousel" class="carousel results-carousel">
+        <div class="box m-5">
+        <div class="content has-text-centered">
+            <img src="images/error_comprehension.png" alt="grade-lv" width="80%"/>
+            <p>Examples of errors in the Pun Comprehension task.</p>
+        </div>
+        </div>
+        <div class="box m-5">
+        <div class="content has-text-centered">
+            <img src="images/error_generation.png" alt="contexts" width="80%"/>
+            <p>Examples of errors in the Pun Generation and Resolution tasks, organized into three error types. FT stands for Flash-Thinking. The text actually generated by the LLM is highlighted in violet.</p>
+        </div>
+        </div>
+    </div>
+</div>
+  </div>
+</section>
+
+
+
+<!--bibtex -->
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3 has-text-centered">BibTeX</h2>
+    <pre><code>@inproceedings{cocchieri-etal-2025-what,
+    title = "What do you call a dog that is incontrovertibly true? Dogma: Testing LLM Generalization through Humor",
+    author = "Cocchieri, Alessio  and
+      Ragazzi, Luca  and
+      Italiani, Paolo  and
+      Tagliavini, Giuseppe and
+      Moro, Gianluca",
+    booktitle = "Proceedings of the 63nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    year = "2025",
+    address = "Vienna, Austria",
+    publisher = "Association for Computational Linguistics"
+}</code></pre>
+  </div>
+</section>
+
+<section>
+  <div class="section" id="org-banners" style="display:flex">
+    <a href="https://disi.unibo.it/en" target="_blank" rel="external">
+        <img class="center-block org-banner" src="images/unibo-logo-big.png">
+    </a>
+  </div>
+</section>
+
+<footer class="footer">
+  <!-- <div class="container"> -->
+    <div class="content has-text-centered">
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is website adapted from <a href="https://nerfies.github.io/">Nerfies</a>, licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  <!-- </div> -->
+</footer>
+
+</body>
+</html>
